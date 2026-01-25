@@ -8,7 +8,7 @@ import {
   MeshRefractionMaterial,
   useGLTF,
 } from '@react-three/drei';
-import { useMemo, useRef, useState } from 'react';
+import { Suspense, useMemo, useRef, useState } from 'react';
 import { EquirectangularReflectionMapping, type BufferGeometry, type Group } from 'three';
 import { RGBELoader } from 'three-stdlib';
 
@@ -114,8 +114,27 @@ function DiamondMesh({ envTexture }: { envTexture: ReturnType<typeof useLoader> 
   );
 }
 
-export function DiamondBackground() {
+function DiamondScene() {
   const envTexture = useLoader(RGBELoader, '/peppermint_powerplant_2_4k.hdr');
+  return (
+    <>
+      <color attach="background" args={['#f6f7fb']} />
+      <ambientLight intensity={0.7 * Math.PI} color="#d6e9ff" />
+      <spotLight
+        decay={0}
+        position={[4, 4, -8]}
+        angle={0.18}
+        penumbra={1}
+        intensity={1.2}
+      />
+      <pointLight decay={0} position={[-8, -8, -8]} intensity={0.6} />
+      <DiamondMesh envTexture={envTexture} />
+      <Environment map={envTexture} />
+    </>
+  );
+}
+
+export function DiamondBackground() {
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-hidden">
       <div className="absolute w-[620px] h-[620px] bg-white rounded-full blur-[140px] opacity-70 pointer-events-none" />
@@ -126,18 +145,9 @@ export function DiamondBackground() {
           gl={{ alpha: true, antialias: true }}
           dpr={[1, 1.5]}
         >
-          <color attach="background" args={['#f6f7fb']} />
-          <ambientLight intensity={0.7 * Math.PI} color="#d6e9ff" />
-          <spotLight
-            decay={0}
-            position={[4, 4, -8]}
-            angle={0.18}
-            penumbra={1}
-            intensity={1.2}
-          />
-          <pointLight decay={0} position={[-8, -8, -8]} intensity={0.6} />
-          <DiamondMesh envTexture={envTexture} />
-          <Environment map={envTexture} />
+          <Suspense fallback={<color attach="background" args={['#f6f7fb']} />}>
+            <DiamondScene />
+          </Suspense>
         </Canvas>
       </div>
     </div>
