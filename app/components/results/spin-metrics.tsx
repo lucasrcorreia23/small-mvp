@@ -28,7 +28,7 @@ function MetricBar({ label, fullLabel, value, barColor, labelBg, labelText }: Om
         </div>
         <span className="text-sm font-semibold text-slate-800">{value}%</span>
       </div>
-      <div className={`h-3 rounded-none overflow-hidden ${BAR_BG_UNFILLED}`}>
+      <div className={`h-3 rounded-sm overflow-hidden ${BAR_BG_UNFILLED}`}>
         <div
           className={`h-full ${barColor} transition-all duration-500 ease-out`}
           style={{ width: `${value}%` }}
@@ -40,7 +40,7 @@ function MetricBar({ label, fullLabel, value, barColor, labelBg, labelText }: Om
 
 function HighlightCard({ highlight }: { highlight: TranscriptHighlight }) {
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-none p-4">
+    <div className="bg-slate-50 border border-slate-200/80 rounded-sm p-4">
       <div className="text-sm italic text-slate-700 mb-2">
         &ldquo;{highlight.quote}&rdquo;
       </div>
@@ -57,7 +57,7 @@ export function SpinMetricsDisplay({ metrics }: SpinMetricsDisplayProps) {
   return (
     <div className="space-y-6">
       {/* Pontuação Geral: score + feedback centralizado dentro do box */}
-      <div className="text-center p-6 bg-slate-50 rounded-none border border-slate-200">
+      <div className="text-center p-6 bg-slate-50 rounded-sm border border-slate-200/80">
         <div className="text-sm text-slate-500 mb-2">Pontuacao Geral</div>
         <div className="text-5xl font-bold mb-2 text-slate-700">
           {metrics.overallScore}%
@@ -116,7 +116,7 @@ export function SpinMetricsDisplay({ metrics }: SpinMetricsDisplayProps) {
               <h3 className="text-lg font-semibold text-slate-800">Pontos Fortes</h3>
               <div className="space-y-2">
                 {detailedFeedback.strengths.map((strength, i) => (
-                  <div key={i} className="bg-slate-50 border border-slate-200 rounded-none p-3">
+                  <div key={i} className="bg-slate-50 border border-slate-200/80 rounded-sm p-3">
                     <span className="text-sm text-slate-700">{strength}</span>
                   </div>
                 ))}
@@ -130,7 +130,7 @@ export function SpinMetricsDisplay({ metrics }: SpinMetricsDisplayProps) {
               <h3 className="text-lg font-semibold text-slate-800">Oportunidades de melhoria</h3>
               <div className="space-y-2">
                 {detailedFeedback.improvements.map((improvement, i) => (
-                  <div key={i} className="bg-slate-50 border border-slate-200 rounded-none p-3">
+                  <div key={i} className="bg-slate-50 border border-slate-200/80 rounded-sm p-3">
                     <span className="text-sm text-slate-700">{improvement}</span>
                   </div>
                 ))}

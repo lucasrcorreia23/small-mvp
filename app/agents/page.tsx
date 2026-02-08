@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AuthGuard, useLogout } from '@/app/components/auth-guard';
-import { DiamondBackground } from '@/app/components/diamond-background';
 import { AgentList } from '@/app/components/agents/agent-list';
 import { Agent } from '@/app/lib/types/sta';
 import { listAgents } from '@/app/lib/sta-service';
@@ -51,11 +50,8 @@ function AgentsPageContent() {
 
   return (
     <main className="min-h-screen relative">
-      <DiamondBackground />
-      <div className="fixed inset-0 z-[1] backdrop-blur-md bg-white/25 pointer-events-none" aria-hidden />
-
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-20 px-6 py-5 bg-white/30 backdrop-blur-sm border-b border-white/20">
+      <header className="fixed top-0 left-0 right-0 z-20 px-6 py-3 bg-white/30 backdrop-blur-sm h-16 border-b border-white/20">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <span className="text-lg font-semibold text-slate-900 tracking-tight font-sans">
             Perfecting

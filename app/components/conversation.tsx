@@ -220,7 +220,7 @@ export function Conversation() {
 
   return (
     <div className="relative z-10 w-full max-w-md mx-auto text-center mb-64 lg:mb-20">
-      <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-none px-8 py-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]">
+      <div className="card-surface px-8 py-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]">
         <div className="flex flex-col items-center gap-4 mb-8">
           <img
             src="https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=facearea&w=256&h=256&q=80"
@@ -237,7 +237,7 @@ export function Conversation() {
           <div className="space-y-4">
             <button
               onClick={startConversation}
-              className="w-full h-12 px-6 bg-[#2E63CD] hover:bg-[#3A71DB] text-white font-medium rounded-none transition-all duration-200 active:scale-[0.98]"
+              className="btn-primary w-full h-12 px-6 text-white font-medium transition-all duration-200 active:scale-[0.98]"
             >
               Iniciar
             </button>
@@ -266,7 +266,7 @@ export function Conversation() {
             />
             <button
               onClick={stopConversation}
-              className="w-full h-12 px-6 bg-red-600 hover:bg-red-700 text-white font-medium rounded-none transition-all duration-200 flex items-center justify-center gap-2"
+              className="w-full h-12 px-6 rounded-sm border border-red-400/50 bg-red-600 hover:bg-red-700 text-white font-medium transition-all duration-200 flex items-center justify-center gap-2"
             >
               <svg
                 aria-hidden="true"

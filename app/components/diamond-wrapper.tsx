@@ -20,7 +20,7 @@ function DiamondIcon({ className = '' }: { className?: string }) {
 
 function DiamondFallback() {
   return (
-    <div className="fixed inset-0 bg-[#f6f7fb] flex items-center justify-center pointer-events-none">
+    <div className="fixed inset-0 bg-[#f9f9f9] flex items-center justify-center pointer-events-none">
       <div className="absolute w-[760px] h-[760px] bg-[#eef5ff] rounded-full blur-[150px] opacity-80" />
       <div className="absolute w-[980px] h-[980px] bg-[#e9f2ff] rounded-full blur-[220px] opacity-45" />
       <div className="relative w-48 h-48 animate-diamond-rotate">

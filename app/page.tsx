@@ -12,7 +12,7 @@ type SignupStep = 1 | 2; // 1 = dados pessoais, 2 = empresa
 
 export default function LoginPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<FormMode>('signup');
+  const [mode, setMode] = useState<FormMode>('login');
   const [signupStep, setSignupStep] = useState<SignupStep>(1);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -183,16 +183,53 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative min-h-screen bg-[#f6f7fb]">
-      {/* Camada do diamante (atrás, z-0): mesma posição, pode invadir a coluna direita */}
+    <main className="relative min-h-screen bg-[#f9f9f9] overflow-hidden">
+      {/* Efeitos esfumaçados: reflexos dos lados do diamante (atrás de tudo) */}
       <div
-        className="absolute bottom-0 w-full lg:w-[940px] z-0 overflow-visible pointer-events-none"
+        className="absolute inset-0 z-0 pointer-events-none lg:overflow-visible"
         aria-hidden
       >
-        <div className="h-full flex flex-col justify-center items-center gap-4">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] max-w-[900px] h-[90%] lg:h-[110%] flex items-center justify-center">
+          {/* Reflexo lateral esquerdo do diamante */}
+          <div
+            className="absolute left-[5%] top-[35%] w-[300px] h-[340px] rounded-full opacity-[0.58] blur-[75px]"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(165,191,245,0.85) 0%, rgba(184,212,240,0.5) 35%, rgba(207,227,255,0.25) 55%, transparent 75%)',
+            }}
+          />
+          {/* Reflexo lateral direito do diamante */}
+          <div
+            className="absolute right-[5%] top-[38%] w-[280px] h-[320px] rounded-full opacity-[0.52] blur-[70px]"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(180,208,245,0.8) 0%, rgba(197,220,248,0.45) 40%, rgba(214,233,255,0.2) 58%, transparent 75%)',
+            }}
+          />
+          {/* Reflexo superior (face do diamante) */}
+          <div
+            className="absolute left-1/2 top-[25%] -translate-x-1/2 w-[340px] h-[220px] rounded-full opacity-[0.48] blur-[65px]"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(197,220,248,0.75) 0%, rgba(180,208,245,0.4) 45%, rgba(220,232,248,0.2) 60%, transparent 75%)',
+            }}
+          />
+          {/* Névoa central (base do diamante) */}
+          <div
+            className="absolute left-1/2 bottom-[20%] -translate-x-1/2 w-[420px] h-[240px] rounded-full opacity-[0.42] blur-[85px]"
+            style={{
+              background: 'radial-gradient(ellipse at center, rgba(184,208,242,0.7) 0%, rgba(165,191,245,0.35) 40%, rgba(210,222,240,0.2) 60%, transparent 78%)',
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Camada do diamante (z-0) */}
+      <div
+        className="absolute -left-5 bottom-20 w-full h-full z-0 overflow-visible pointer-events-none"
+        aria-hidden
+      >
+        <div className="h-full w-full lg:grid lg:grid-cols-2 flex flex-col justify-left items-center gap-4">
           <div className="h-8 shrink-0" aria-hidden />
           <div className="h-5 max-w-xs shrink-0" aria-hidden />
-          <div className="w-full h-[800px] blur-lg lg:blur-none flex-shrink-0 flex items-left  overflow-visible">
+          <div className="w-full h-full blur-lg lg:blur-none flex-shrink-0 justify-center flex items-center overflow-visible">
             <DiamondLogin />
           </div>
         </div>
@@ -201,8 +238,8 @@ export default function LoginPage() {
       {/* Grid por cima (z-10): duas colunas */}
       <div className="relative z-10 min-h-screen flex flex-col lg:grid lg:grid-cols-2 lg:min-h-screen">
         {/* Left column: logo e slogan; espaço reservado para o diamante (mostrado pela camada de fundo) */}
-        <div className="flex flex-col lg:items-start items-center justify-center gap-4 p-6 lg:pt-6 lg:pl-20 order-1">
-          <span className="text-5xl font-bold text-[#3465C6] tracking-tight font-sans">
+        <div className="flex flex-col lg:items-center col-1 items-center justify-center gap-4 p-6 order-1">
+          <span className="text-7xl font-bold text-[#3465C6] tracking-tight font-sans">
             Perfecting
           </span>
           <p className="text-sm text-slate-500 pl-1 font-regular text-center max-w-xs">
@@ -212,8 +249,8 @@ export default function LoginPage() {
         </div>
 
         {/* Right column: transparente para o diamante aparecer atrás; só o card cobre */}
-        <div className="flex flex-col items-center justify-center p-4 lg:p-8 order-2">
-        <div className="w-full max-w-sm bg-white border border-slate-200 rounded-none shadow-3xl p-8">
+        <div className="flex flex-col items-center justify-center shrink-0 p-4 lg:p-8 order-2">
+        <div className="w-full max-w-sm card-surface shadow-2xl p-8">
           <div className="text-center mb-8">
             <h2 className="text-xl font-semibold text-slate-800 mb-2">
               {mode === 'login'
@@ -232,12 +269,12 @@ export default function LoginPage() {
             {mode === 'signup' && (
               <div className="mt-3 flex justify-center gap-1" aria-hidden>
                 <span
-                  className={`h-1 w-8 rounded-none transition-colors ${
+                  className={`h-1 w-8 rounded-sm transition-colors ${
                     signupStep === 1 ? 'bg-[#2E63CD]' : 'bg-slate-200'
                   }`}
                 />
                 <span
-                  className={`h-1 w-8 rounded-none transition-colors ${
+                  className={`h-1 w-8 rounded-sm transition-colors ${
                     signupStep === 2 ? 'bg-[#2E63CD]' : 'bg-slate-200'
                   }`}
                 />
@@ -255,7 +292,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu.email@exemplo.com"
                   required
-                  className="mt-2 w-full px-4 py-3 rounded-none border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+                  className="mt-2 w-full px-4 py-3 rounded-sm border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
                 />
               </div>
               <div className="space-y-2 text-left">
@@ -266,18 +303,18 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="********"
                   required
-                  className="w-full mt-2 px-4 py-3 rounded-none border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+                  className="w-full mt-2 px-4 py-3 rounded-sm border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
                 />
               </div>
               {error && (
-                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-none p-3">
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-sm p-3">
                   {error}
                 </div>
               )}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 px-6 bg-[#2E63CD] hover:bg-[#3A71DB] disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium rounded-none transition-all duration-200 active:scale-[0.98]"
+                className="btn-primary w-full h-12 px-6 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium transition-all duration-200 active:scale-[0.98]"
               >
                 {loading ? 'Carregando...' : 'Entrar'}
               </button>
@@ -292,7 +329,7 @@ export default function LoginPage() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Seu nome completo"
                   required
-                  className="mt-2 w-full px-4 py-3 rounded-none border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+                  className="mt-2 w-full px-4 py-3 rounded-sm border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
                 />
               </div>
               <div className="space-y-2 text-left">
@@ -303,7 +340,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu.email@exemplo.com"
                   required
-                  className="mt-2 w-full px-4 py-3 rounded-none border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+                  className="mt-2 w-full px-4 py-3 rounded-sm border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
                 />
               </div>
               <div className="space-y-2 text-left">
@@ -314,18 +351,18 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="********"
                   required
-                  className="w-full mt-2 px-4 py-3 rounded-none border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+                  className="w-full mt-2 px-4 py-3 rounded-sm border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
                 />
               </div>
               {error && (
-                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-none p-3">
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-sm p-3">
                   {error}
                 </div>
               )}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 px-6 bg-[#2E63CD] hover:bg-[#3A71DB] disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium rounded-none transition-all duration-200 active:scale-[0.98]"
+                className="btn-primary w-full h-12 px-6 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium transition-all duration-200 active:scale-[0.98]"
               >
                 {loading ? 'Carregando...' : 'Próximo'}
               </button>
@@ -340,7 +377,7 @@ export default function LoginPage() {
                   onChange={(e) => setOrgName(e.target.value)}
                   placeholder="Ex: Minha Empresa Ltda"
                   required
-                  className="w-full px-4 py-3 rounded-none border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+                  className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
                 />
               </div>
               <div className="space-y-2 text-left">
@@ -352,7 +389,7 @@ export default function LoginPage() {
                   placeholder="00000000000000"
                   maxLength={14}
                   required
-                  className="w-full px-4 py-3 rounded-none border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+                  className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
                 />
               </div>
               <div className="space-y-2 text-left">
@@ -363,11 +400,11 @@ export default function LoginPage() {
                   onChange={(e) => setOrgUrl(e.target.value)}
                   placeholder="https://minhaempresa.com"
                   required
-                  className="w-full px-4 py-3 rounded-none border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+                  className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
                 />
               </div>
               {error && (
-                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-none p-3">
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-sm p-3">
                   {error}
                 </div>
               )}
@@ -376,14 +413,14 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setSignupStep(1)}
                   disabled={loading}
-                  className="flex-1 h-12 px-4 border border-slate-300 text-slate-700 hover:bg-slate-50 disabled:opacity-50 font-medium rounded-none transition-colors"
+                  className="btn-secondary flex-1 h-12 px-4 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 font-medium transition-colors"
                 >
                   Voltar
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 h-12 px-6 bg-[#2E63CD] hover:bg-[#3A71DB] disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium rounded-none transition-all duration-200 active:scale-[0.98]"
+                  className="btn-primary flex-1 h-12 px-6 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium transition-all duration-200 active:scale-[0.98]"
                 >
                   {loading ? 'Carregando...' : 'Criar conta'}
                 </button>

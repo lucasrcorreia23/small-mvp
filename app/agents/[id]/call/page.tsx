@@ -4,8 +4,7 @@ import { useConversation } from '@elevenlabs/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { AuthGuard } from '@/app/components/auth-guard';
-import { DiamondBackground } from '@/app/components/diamond-background';
+import { AuthGuard, useLogout } from '@/app/components/auth-guard';
 import { LoadingView } from '@/app/components/loading-view';
 import { BarVisualizer, type AgentState } from '@/app/components/ui/bar-visualizer';
 import { Agent } from '@/app/lib/types/sta';
@@ -68,6 +67,7 @@ interface TranscriptEntry {
 function CallPageContent() {
   const params = useParams();
   const router = useRouter();
+  const logout = useLogout();
   const agentId = Number(params.id);
 
   const [agent, setAgent] = useState<Agent | null>(null);
@@ -339,16 +339,28 @@ function CallPageContent() {
   if (error && !agent) {
     return (
       <main className="min-h-screen relative">
-        <DiamondBackground />
-        <div className="fixed inset-0 z-[1] backdrop-blur-md bg-white/25 pointer-events-none" aria-hidden />
-        <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
-          <div className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-none p-8 max-w-md w-full text-center">
-            <div className="text-red-600 bg-red-50 border border-red-200 rounded-none p-4 mb-6">
+        <header className="fixed top-0 left-0 right-0 z-20 px-6 py-3 bg-white/30 backdrop-blur-sm border-b border-white/20">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <span className="text-lg font-semibold text-slate-900 tracking-tight font-sans">Perfecting</span>
+            <button
+              onClick={logout}
+              className="flex items-center gap-2 text-sm font-medium text-slate-900 hover:text-slate-600 transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden>
+                <path fillRule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5A1.5 1.5 0 007.5 20h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm5.03 4.72a.75.75 0 010 1.06l-1.72 1.72h10.94a.75.75 0 010 1.5H10.81l1.72 1.72a.75.75 0 11-1.06 1.06l-3-3a.75.75 0 010-1.06l3-3a.75.75 0 011.06 0z" clipRule="evenodd" />
+              </svg>
+              Sair
+            </button>
+          </div>
+        </header>
+        <div className="relative z-10 pt-24 min-h-screen flex items-center justify-center p-6">
+          <div className="card-surface p-8 max-w-md w-full text-center">
+            <div className="text-red-600 bg-red-50 border border-red-200 rounded-sm p-4 mb-6">
               {error}
             </div>
             <button
               onClick={handleBack}
-              className="h-10 px-6 bg-[#2E63CD] hover:bg-[#3A71DB] text-white font-medium rounded-none transition-all"
+              className="btn-primary h-10 px-6 text-white font-medium transition-all"
             >
               Voltar para Agentes
             </button>
@@ -360,12 +372,23 @@ function CallPageContent() {
 
   return (
     <main className="min-h-screen relative">
-      <DiamondBackground />
-      <div className="fixed inset-0 z-[1] backdrop-blur-md bg-white/25 pointer-events-none" aria-hidden />
-
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
+      <header className="fixed top-0 left-0 right-0 z-20 px-6 py-3 bg-white/30 backdrop-blur-sm border-b border-white/20">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <span className="text-lg font-semibold text-slate-900 tracking-tight font-sans">Perfecting</span>
+          <button
+            onClick={logout}
+            className="flex items-center gap-2 text-sm font-medium text-slate-900 hover:text-slate-600 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden>
+              <path fillRule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5A1.5 1.5 0 007.5 20h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm5.03 4.72a.75.75 0 010 1.06l-1.72 1.72h10.94a.75.75 0 010 1.5H10.81l1.72 1.72a.75.75 0 11-1.06 1.06l-3-3a.75.75 0 010-1.06l3-3a.75.75 0 011.06 0z" clipRule="evenodd" />
+            </svg>
+            Sair
+          </button>
+        </div>
+      </header>
+      <div className="relative z-10 pt-24 min-h-screen flex items-center justify-center p-6">
         <div className="w-full max-w-md mx-auto">
-          <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-none px-8 py-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]">
+          <div className="card-surface px-8 py-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]">
             {/* Dados do agente: avatar, nome e cargo centralizados (igual feedback) */}
             {agent && (
               <div className="flex flex-col items-center text-center mb-8">
@@ -391,7 +414,7 @@ function CallPageContent() {
               <div className="space-y-4">
                 <button
                   onClick={MOCK_CALL ? startMockCall : startRealCall}
-                  className="w-full h-12 px-6 bg-[#2E63CD] hover:bg-[#3A71DB] text-white font-medium rounded-none transition-all duration-200 active:scale-[0.98]"
+                  className="btn-primary w-full h-12 px-6 text-white font-medium transition-all duration-200 active:scale-[0.98]"
                 >
                   Iniciar Chamada
                 </button>
@@ -452,7 +475,7 @@ function CallPageContent() {
 
                 <button
                   onClick={MOCK_CALL ? stopMockCall : stopRealCall}
-                  className="w-full h-12 px-6 bg-red-600 hover:bg-red-700 text-white font-medium rounded-none transition-all duration-200 flex items-center justify-center gap-2"
+                  className="w-full h-12 px-6 rounded-sm border border-red-400/50 bg-red-600 hover:bg-red-700 text-white font-medium transition-all duration-200 flex items-center justify-center gap-2"
                 >
                   <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
                     <path d="M4.5 10.5C6.5 9.17 9.13 8.5 12 8.5c2.87 0 5.5.67 7.5 2 1.06.7 1.5 2.03 1.08 3.25l-.55 1.6a1.5 1.5 0 0 1-1.83.95l-2.4-.6a1.5 1.5 0 0 1-1.1-1.13l-.24-1.2a13.8 13.8 0 0 0-4.92 0l-.24 1.2a1.5 1.5 0 0 1-1.1 1.13l-2.4.6a1.5 1.5 0 0 1-1.83-.95l-.55-1.6A2.99 2.99 0 0 1 4.5 10.5Z" />

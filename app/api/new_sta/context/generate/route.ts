@@ -25,6 +25,7 @@ export async function POST(request: NextRequest) {
     const apiBody = {
       offer_id: offerId,
       aditional_instructions: body.aditional_instructions ?? '',
+      infer: body.infer ?? false,
     };
 
     console.log('[STA] Generating context:', JSON.stringify(apiBody));

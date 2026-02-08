@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { LoadingView } from '@/app/components/loading-view';
 import { ContextCreateRequest, ContextGenerateResponse } from '@/app/lib/types/sta';
 import { generateContext, createContext } from '@/app/lib/sta-service';
 
@@ -10,9 +9,11 @@ interface StepContextProps {
   initialData: Partial<ContextCreateRequest> & { id?: number };
   onComplete: (data: ContextCreateRequest & { id: number }) => void;
   onBack: () => void;
+  setFooterContent?: (node: React.ReactNode) => void;
+  offerSummary?: { offer_name: string; general_description: string };
 }
 
-export function StepContext({ offerId, initialData, onComplete, onBack }: StepContextProps) {
+export function StepContext({ offerId, initialData, onComplete, onBack, setFooterContent, offerSummary }: StepContextProps) {
   // Visible fields
   const [name, setName] = useState(initialData.name || '');
   const [targetDescription, setTargetDescription] = useState(initialData.target_description || '');
@@ -30,17 +31,13 @@ export function StepContext({ offerId, initialData, onComplete, onBack }: StepCo
   const [awarenessSolutions, setAwarenessSolutions] = useState(initialData.persona_awareness_of_the_solutions || '');
   const [existingSolutions, setExistingSolutions] = useState(initialData.persona_existing_solutions || '');
 
+  const [additionalInstructions, setAdditionalInstructions] = useState('');
+  const [infer, setInfer] = useState(false);
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Auto-generate on mount
-  useEffect(() => {
-    if (!hasGenerated && !initialData.id) {
-      handleGenerate();
-    }
-  }, []);
 
   const handleGenerate = async () => {
     const validOfferId = Number(offerId);
@@ -54,7 +51,8 @@ export function StepContext({ offerId, initialData, onComplete, onBack }: StepCo
     try {
       const generated: ContextGenerateResponse = await generateContext({
         offer_id: validOfferId,
-        aditional_instructions: '',
+        aditional_instructions: additionalInstructions.trim() || '',
+        infer,
       });
 
       setName(generated.name || '');
@@ -137,133 +135,21 @@ export function StepContext({ offerId, initialData, onComplete, onBack }: StepCo
     }
   };
 
-  if (isGenerating) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <LoadingView message="Gerando perfil do comprador..." fullPage={false}>
-          <p className="text-sm text-slate-500 mt-2">Isso pode levar alguns segundos</p>
-        </LoadingView>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-semibold text-slate-800 mb-2">
-          Etapa 2: Perfil do Comprador
-        </h2>
-        <p className="text-sm text-slate-500">
-          Defina quem e seu cliente ideal e seus desafios
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        {/* Name */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700">
-            Nome do Contexto *
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Ex: Gerente Comercial - Empresa de Tecnologia"
-            className="w-full px-4 py-3 rounded-none border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
-          />
-        </div>
-
-        {/* Target Description */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700">
-            Descricao do Comprador *
-          </label>
-          <textarea
-            value={targetDescription}
-            onChange={(e) => setTargetDescription(e.target.value)}
-            placeholder="Descreva o perfil do comprador ideal..."
-            rows={3}
-            className="w-full px-4 py-3 rounded-none border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
-          />
-        </div>
-
-        {/* Quantifiable Pain Points */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700">
-            Dores e Problemas Quantificaveis
-          </label>
-          <textarea
-            value={quantifiablePainPoints}
-            onChange={(e) => setQuantifiablePainPoints(e.target.value)}
-            placeholder="Quais sao as dores concretas e quantificaveis do comprador..."
-            rows={3}
-            className="w-full px-4 py-3 rounded-none border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
-          />
-        </div>
-
-        {/* Desired Future State */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700">
-            Estado Futuro Desejado
-          </label>
-          <textarea
-            value={desiredFutureState}
-            onChange={(e) => setDesiredFutureState(e.target.value)}
-            placeholder="Como o comprador imagina o cenario ideal apos resolver os problemas..."
-            rows={2}
-            className="w-full px-4 py-3 rounded-none border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
-          />
-        </div>
-
-        {/* Objections */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700">
-            Objecoes e Preocupacoes
-          </label>
-          <textarea
-            value={personaObjections}
-            onChange={(e) => setPersonaObjections(e.target.value)}
-            placeholder="Quais objecoes e preocupacoes o comprador pode levantar..."
-            rows={2}
-            className="w-full px-4 py-3 rounded-none border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
-          />
-        </div>
-
-        {/* Risk Aversion Level */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700">
-            Nivel de Aversao a Risco
-          </label>
-          <input
-            type="text"
-            value={riskAversionLevel}
-            onChange={(e) => setRiskAversionLevel(e.target.value)}
-            placeholder="Ex: Medio - aberto a novas solucoes com evidencias"
-            className="w-full px-4 py-3 rounded-none border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
-          />
-        </div>
-      </div>
-
-      {/* Error Message */}
-      {error && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-none p-3">
-          {error}
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="flex gap-4 pt-4">
+  useEffect(() => {
+    if (!setFooterContent) return;
+    setFooterContent(
+      <>
         <button
           onClick={onBack}
           disabled={isSaving}
-          className="flex-1 h-12 px-6 bg-slate-100 hover:bg-slate-200 disabled:bg-slate-50 text-slate-700 font-medium rounded-none transition-all duration-200"
+          className="btn-secondary w-fit h-12 px-6 bg-slate-100 hover:bg-slate-200 disabled:bg-slate-50 text-slate-700 font-medium transition-all duration-200"
         >
           Voltar
         </button>
         <button
           onClick={handleSave}
           disabled={isSaving || !name.trim() || !targetDescription.trim()}
-          className="flex-1 h-12 px-6 bg-[#2E63CD] hover:bg-[#3A71DB] disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
+          className="btn-primary w-fit h-12 px-6 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
         >
           {isSaving ? (
             <>
@@ -274,19 +160,218 @@ export function StepContext({ offerId, initialData, onComplete, onBack }: StepCo
             'Salvar e Continuar'
           )}
         </button>
+      </>
+    );
+    return () => setFooterContent(null);
+  }, [setFooterContent, onBack, isSaving, name, targetDescription]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-6 lg:flex-row lg:gap-0">
+        {/* Left Column: label + text + textarea + infer toggle + generate (same pattern as Oferta) */}
+        <div className="w-full lg:w-[40%] lg:flex-shrink-0 lg:pr-8 space-y-6">
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-slate-700">Descrição para a IA</label>
+            <textarea
+              value={additionalInstructions}
+              onChange={(e) => setAdditionalInstructions(e.target.value)}
+              placeholder="Descreva quem e seu cliente ideal, contexto de compra e desafios..."
+              rows={8}
+              className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="context-infer"
+                checked={infer}
+                onChange={(e) => setInfer(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 focus:ring-2 focus:ring-[#2E63CD]/30 focus:ring-offset-0 accent-[#2E63CD]"
+              />
+              <label htmlFor="context-infer" className="text-sm font-medium text-slate-700">
+                Preenchimento criativo
+              </label>
+            </div>
+            <p className="text-xs text-slate-500">
+              Quando ativado, a IA pode sugerir conteúdo mais criativo e variado para preencher os campos.
+            </p>
+          </div>
+
+          <button
+            onClick={handleGenerate}
+            disabled={isGenerating}
+            className="btn-primary w-full h-12 px-6 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
+          >
+            {isGenerating ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Gerando...
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                  <path fillRule="evenodd" d="M4.755 10.059a7.5 7.5 0 0112.548-3.364l1.903 1.903h-3.183a.75.75 0 100 1.5h4.992a.75.75 0 00.75-.75V4.356a.75.75 0 00-1.5 0v3.18l-1.9-1.9A9 9 0 003.306 9.67a.75.75 0 101.45.388zm15.408 3.352a.75.75 0 00-.919.53 7.5 7.5 0 01-12.548 3.364l-1.902-1.903h3.183a.75.75 0 000-1.5H2.984a.75.75 0 00-.75.75v4.992a.75.75 0 001.5 0v-3.18l1.9 1.9a9 9 0 0015.059-4.035.75.75 0 00-.53-.918z" clipRule="evenodd" />
+                </svg>
+                {hasGenerated ? 'Gerar Novamente' : 'Gerar Contexto'}
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Divider between columns */}
+        <div className="hidden lg:block w-px bg-slate-200 flex-shrink-0 self-stretch min-h-[200px]" aria-hidden />
+
+        {/* Right Column: all context fields (always visible) */}
+        <div className="w-full lg:w-[60%] lg:pl-8 relative">
+          {isGenerating && (
+            <div className="absolute top-0 right-0 z-10 flex items-center gap-2 text-sm text-slate-500">
+              <div className="w-4 h-4 border-2 border-[#2E63CD] border-t-transparent rounded-full animate-spin" />
+              Gerando perfil...
+            </div>
+          )}
+          <div className="space-y-4">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Nome do Contexto *</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ex: Gerente Comercial - Empresa de Tecnologia"
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Descricao do Comprador *</label>
+              <textarea
+                value={targetDescription}
+                onChange={(e) => setTargetDescription(e.target.value)}
+                placeholder="Descreva o perfil do comprador ideal..."
+                rows={3}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Eventos Motivadores</label>
+              <textarea
+                value={compellingEvents}
+                onChange={(e) => setCompellingEvents(e.target.value)}
+                placeholder="Eventos ou situacoes que motivam o comprador a agir..."
+                rows={2}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Prioridades Estrategicas</label>
+              <textarea
+                value={strategicPriorities}
+                onChange={(e) => setStrategicPriorities(e.target.value)}
+                placeholder="Prioridades estrategicas do comprador..."
+                rows={2}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Dores e Problemas Quantificaveis</label>
+              <textarea
+                value={quantifiablePainPoints}
+                onChange={(e) => setQuantifiablePainPoints(e.target.value)}
+                placeholder="Quais sao as dores concretas e quantificaveis do comprador..."
+                rows={3}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Estado Futuro Desejado</label>
+              <textarea
+                value={desiredFutureState}
+                onChange={(e) => setDesiredFutureState(e.target.value)}
+                placeholder="Como o comprador imagina o cenario ideal apos resolver os problemas..."
+                rows={2}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Principais Direcionadores de Valor</label>
+              <textarea
+                value={primaryValueDrivers}
+                onChange={(e) => setPrimaryValueDrivers(e.target.value)}
+                placeholder="O que mais valoriza na decisao de compra..."
+                rows={2}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Processo Típico de Decisao</label>
+              <textarea
+                value={decisionMakingProcess}
+                onChange={(e) => setDecisionMakingProcess(e.target.value)}
+                placeholder="Como o comprador costuma tomar decisoes..."
+                rows={2}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Nivel de Aversao a Risco</label>
+              <input
+                type="text"
+                value={riskAversionLevel}
+                onChange={(e) => setRiskAversionLevel(e.target.value)}
+                placeholder="Ex: Medio - aberto a novas solucoes com evidencias"
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Objecoes e Preocupacoes da Persona</label>
+              <textarea
+                value={personaObjections}
+                onChange={(e) => setPersonaObjections(e.target.value)}
+                placeholder="Quais objecoes e preocupacoes o comprador pode levantar..."
+                rows={2}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Consciencia do Problema</label>
+              <textarea
+                value={awarenessProblem}
+                onChange={(e) => setAwarenessProblem(e.target.value)}
+                placeholder="Nivel de consciencia do comprador em relacao ao problema..."
+                rows={2}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Consciencia das Solucoes</label>
+              <textarea
+                value={awarenessSolutions}
+                onChange={(e) => setAwarenessSolutions(e.target.value)}
+                placeholder="Nivel de consciencia sobre solucoes disponiveis..."
+                rows={2}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Solucoes Existentes Utilizadas</label>
+              <textarea
+                value={existingSolutions}
+                onChange={(e) => setExistingSolutions(e.target.value)}
+                placeholder="Solucoes ou alternativas que o comprador ja utiliza..."
+                rows={2}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Regenerate Button */}
-      <button
-        onClick={handleGenerate}
-        disabled={isGenerating}
-        className="w-full h-10 px-4 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 text-sm font-medium rounded-none transition-colors flex items-center justify-center gap-2"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-          <path fillRule="evenodd" d="M4.755 10.059a7.5 7.5 0 0112.548-3.364l1.903 1.903h-3.183a.75.75 0 100 1.5h4.992a.75.75 0 00.75-.75V4.356a.75.75 0 00-1.5 0v3.18l-1.9-1.9A9 9 0 003.306 9.67a.75.75 0 101.45.388zm15.408 3.352a.75.75 0 00-.919.53 7.5 7.5 0 01-12.548 3.364l-1.902-1.903h3.183a.75.75 0 000-1.5H2.984a.75.75 0 00-.75.75v4.992a.75.75 0 001.5 0v-3.18l1.9 1.9a9 9 0 0015.059-4.035.75.75 0 00-.53-.918z" clipRule="evenodd" />
-        </svg>
-        Gerar Novamente
-      </button>
+      {/* Error Message */}
+      {error && (
+        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-sm p-3">
+          {error}
+        </div>
+      )}
     </div>
   );
 }

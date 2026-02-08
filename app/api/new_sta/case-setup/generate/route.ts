@@ -11,8 +11,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    const apiBody = {
+      ...body,
+      infer: body.infer ?? false,
+    };
 
-    console.log('[STA] Generating case setup:', JSON.stringify(body));
+    console.log('[STA] Generating case setup:', JSON.stringify(apiBody));
 
     try {
       const response = await fetch(`${STA_BASE}/case_setup/generate`, {
@@ -21,7 +25,7 @@ export async function POST(request: NextRequest) {
           'Content-Type': 'application/json',
           'Authorization': authHeader,
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(apiBody),
       });
 
       console.log('[STA] Generate case setup response status:', response.status);

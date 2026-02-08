@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import { LoadingView } from '@/app/components/loading-view';
 import { Agent } from '@/app/lib/types/sta';
 import { AgentCard } from './agent-card';
@@ -11,12 +12,87 @@ interface AgentListProps {
   error: string | null;
 }
 
+function CreateAgentDropdown() {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="btn-primary h-10 px-4 text-white font-medium transition-all duration-200 active:scale-[0.98] flex items-center gap-2 flex-shrink-0"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="w-5 h-5"
+        >
+          <path
+            fillRule="evenodd"
+            d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z"
+            clipRule="evenodd"
+          />
+        </svg>
+        Criar Agente
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`}
+        >
+          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-1 w-60 card-surface shadow-lg z-30">
+          <button
+            onClick={() => { setOpen(false); router.push('/agents/offers'); }}
+            className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors flex items-center gap-3"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-[#2E63CD]">
+              <path fillRule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0016.5 9h-1.875a1.875 1.875 0 01-1.875-1.875V5.25A3.75 3.75 0 009 1.5H5.625z" clipRule="evenodd" />
+            </svg>
+            <div>
+              <div className="text-sm font-medium text-slate-800">A partir de uma oferta</div>
+            
+            </div>
+          </button>
+          <div className="border-t border-slate-100" />
+          <button
+            onClick={() => { setOpen(false); router.push('/agents/create'); }}
+            className="w-full text-left px-4 py-3 hover:bg-slate-50 transition-colors flex items-center gap-3"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-[#2E63CD]">
+              <path fillRule="evenodd" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" clipRule="evenodd" />
+            </svg>
+            <div>
+              <div className="text-sm font-medium text-slate-800">Criar do zero</div>
+           
+            </div>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AgentList({ agents, isLoading, error }: AgentListProps) {
   const router = useRouter();
-
-  const handleCreateAgent = () => {
-    router.push('/agents/create');
-  };
 
   if (isLoading) {
     return (
@@ -28,7 +104,7 @@ export function AgentList({ agents, isLoading, error }: AgentListProps) {
 
   if (error) {
     return (
-      <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-none p-4">
+      <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-sm p-4">
         {error}
       </div>
     );
@@ -36,7 +112,7 @@ export function AgentList({ agents, isLoading, error }: AgentListProps) {
 
   if (agents.length === 0) {
     return (
-      <div className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-none p-8 text-center">
+      <div className="card-surface p-8 text-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
             <svg
@@ -57,8 +133,8 @@ export function AgentList({ agents, isLoading, error }: AgentListProps) {
             </p>
           </div>
           <button
-            onClick={handleCreateAgent}
-            className="h-10 px-6 bg-[#2E63CD] hover:bg-[#3A71DB] text-white font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex items-center gap-2"
+            onClick={() => router.push('/agents/create')}
+            className="btn-primary h-10 px-6 text-white font-medium transition-all duration-200 active:scale-[0.98] flex items-center gap-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -90,24 +166,7 @@ export function AgentList({ agents, isLoading, error }: AgentListProps) {
             Pratique suas habilidades de vendas com agentes de IA personalizados
           </p>
         </div>
-        <button
-          onClick={handleCreateAgent}
-          className="h-10 px-4 bg-[#2E63CD] hover:bg-[#3A71DB] text-white font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex items-center gap-2 flex-shrink-0"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-5 h-5"
-          >
-            <path
-              fillRule="evenodd"
-              d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H4.5a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Criar Agente
-        </button>
+        <CreateAgentDropdown />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

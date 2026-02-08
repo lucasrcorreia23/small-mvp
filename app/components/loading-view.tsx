@@ -1,11 +1,9 @@
 'use client';
 
-import { DiamondBackground } from '@/app/components/diamond-background';
-
 interface LoadingViewProps {
   /** Mensagem exibida abaixo do spinner. */
   message?: string;
-  /** Se true (padrão), usa layout full-page com DiamondBackground e backdrop. Se false, só spinner + texto (para uso inline). */
+  /** Se true (padrão), usa layout full-page. Se false, só spinner + texto (para uso inline). */
   fullPage?: boolean;
   /** Conteúdo opcional abaixo da mensagem (ex.: progress dots). */
   children?: React.ReactNode;
@@ -28,8 +26,6 @@ export function LoadingView({ message = 'Carregando...', fullPage = true, childr
 
   return (
     <main className="min-h-screen relative">
-      <DiamondBackground />
-      <div className="fixed inset-0 z-[1] backdrop-blur-md bg-white/25 pointer-events-none" aria-hidden />
       <div className="relative z-10 min-h-screen flex items-center justify-center">
         {content}
       </div>

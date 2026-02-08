@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { AuthGuard } from '@/app/components/auth-guard';
-import { DiamondBackground } from '@/app/components/diamond-background';
 import { LoadingView } from '@/app/components/loading-view';
 import { SpinMetricsDisplay } from '@/app/components/results/spin-metrics';
 import { CallResult, Agent } from '@/app/lib/types/sta';
@@ -81,11 +80,8 @@ function ResultsPageContent() {
 
   return (
     <main className="min-h-screen relative">
-      <DiamondBackground />
-      <div className="fixed inset-0 z-[1] backdrop-blur-md bg-white/25 pointer-events-none" aria-hidden />
-
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-20 px-6 py-5 bg-white/30 backdrop-blur-sm border-b border-white/20">
+      <header className="fixed top-0 left-0 right-0 z-20 px-3 py-5 bg-white/30 backdrop-blur-sm border-b border-white/20">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <span className="text-lg font-semibold text-slate-900 tracking-tight font-sans">
             Perfecting
@@ -103,7 +99,7 @@ function ResultsPageContent() {
       <div className="relative z-10 pt-24 pb-12 px-6">
         <div className="max-w-xl mx-auto">
           {/* Box único: dados do agente + pontuação + análise SPIN */}
-          <div className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-none p-8">
+          <div className="card-surface p-8">
             {/* Dados do agente: avatar à esquerda, título e cargo à direita */}
             {agent && (
               <div className="flex flex-col justify-center mx-auto items-center gap-4 mb-8 max-w-sm pb-6 border-b border-slate-200">
@@ -133,7 +129,7 @@ function ResultsPageContent() {
             )}
 
             {error ? (
-              <div className="text-red-600 bg-red-50 border border-red-200 rounded-none p-4">
+              <div className="text-red-600 bg-red-50 border border-red-200 rounded-sm p-4">
                 {error}
               </div>
             ) : callResult ? (
@@ -144,7 +140,7 @@ function ResultsPageContent() {
             <div className="mt-8 pt-6 border-t border-slate-200 space-y-3">
               <button
                 onClick={handleShare}
-                className="w-full h-12 px-6 bg-[#2E63CD] hover:bg-[#3A71DB] text-white font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
+                className="btn-primary w-full h-12 px-6 text-white font-medium transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                   <path fillRule="evenodd" d="M15.75 4.5a3 3 0 11.825 2.066l-8.421 4.679a3.002 3.002 0 010 1.51l8.421 4.679a3 3 0 11-.729 1.31l-8.421-4.678a3 3 0 110-4.132l8.421-4.679a3 3 0 01-.096-.755z" clipRule="evenodd" />
@@ -154,7 +150,7 @@ function ResultsPageContent() {
 
               <button
                 onClick={handleTryAgain}
-                className="w-full h-12 px-6 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-none transition-all duration-200 flex items-center justify-center gap-2"
+                className="btn-secondary w-full h-12 px-6 bg-white hover:bg-slate-50 text-slate-700 font-medium transition-all duration-200 flex items-center justify-center gap-2"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                   <path fillRule="evenodd" d="M4.755 10.059a7.5 7.5 0 0112.548-3.364l1.903 1.903h-3.183a.75.75 0 100 1.5h4.992a.75.75 0 00.75-.75V4.356a.75.75 0 00-1.5 0v3.18l-1.9-1.9A9 9 0 003.306 9.67a.75.75 0 101.45.388zm15.408 3.352a.75.75 0 00-.919.53 7.5 7.5 0 01-12.548 3.364l-1.902-1.903h3.183a.75.75 0 000-1.5H2.984a.75.75 0 00-.75.75v4.992a.75.75 0 001.5 0v-3.18l1.9 1.9a9 9 0 0015.059-4.035.75.75 0 00-.53-.918z" clipRule="evenodd" />

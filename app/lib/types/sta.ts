@@ -27,6 +27,7 @@ export interface Offer {
 export interface OfferGenerateRequest {
   offer_name: string;
   general_description: string;
+  infer?: boolean;
 }
 
 export interface OfferGenerateResponse {
@@ -88,6 +89,7 @@ export interface ContextGenerateRequest {
   offer_id: number;
   /** API aceita "aditional_instructions" (typo da API). Opcional, default "". */
   aditional_instructions?: string;
+  infer?: boolean;
 }
 
 export interface ContextGenerateResponse {
@@ -213,6 +215,7 @@ export interface CaseSetupGenerateRequest {
   training_objective?: string;
   training_targeted_sales_skills?: string;
   aditional_instructions?: string;
+  infer?: boolean;
 }
 
 export interface CaseSetupGenerateResponse {

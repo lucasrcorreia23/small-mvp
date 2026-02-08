@@ -57,18 +57,18 @@ function DiamondMesh({
     <mesh
       geometry={geometry}
       rotation={[0, 0, 0]}
-      scale={2.2}
+      scale={isLogin ? 1.9 : 2.7}
       castShadow={!isLogin}
       onPointerEnter={!isLogin ? () => setHovered(true) : undefined}
       onPointerLeave={!isLogin ? () => setHovered(false) : undefined}
     >
       <MeshRefractionMaterial
         envMap={envTexture}
-        bounces={3}
+        bounces={2}
         aberrationStrength={0.002}
-        ior={2}
-        fresnel={3.5}
-        color="#A5BFF5"
+        ior={isLogin ? 1.3 : 1.1}
+        fresnel={5.5}
+        color={isLogin ? '#A5BFF8' : '#b8c2d0'}
         toneMapped={true}
       />
     </mesh>
@@ -82,29 +82,29 @@ function DiamondMesh({
     >
       <group ref={hoverLightRef} position={[0, -0.6, 1.1]}>
         <pointLight
-          color="#cfe3ff"
-          intensity={hovered ? 6 : 0}
+          color={isLogin ? '#cfe3ff' : '#d8dce4'}
+          intensity={hovered ? 4 : 0}
           distance={2.5}
           decay={2}
         />
       </group>
       <pointLight
-        color="#d6e9ff"
-        intensity={hovered ? 24 : 20}
+        color={isLogin ? '#d6e9ff' : '#dce0e6'}
+        intensity={hovered ? 14 : 10}
         distance={6}
         decay={2}
         position={[0.6, -0.9, 0.8]}
       />
       <pointLight
-        color="#d6e9ff"
-        intensity={hovered ? 17 : 14}
+        color={isLogin ? '#d6e9ff' : '#dce0e6'}
+        intensity={hovered ? 10 : 7}
         distance={6}
         decay={2}
         position={[-0.6, -0.85, 0.6]}
       />
       <spotLight
-        color="#d6e9ff"
-        intensity={11}
+        color={isLogin ? '#d6e9ff' : '#dce0e6'}
+        intensity={isLogin ? 11 : 5}
         position={[0, -0.4, 2.4]}
         angle={0.4}
         penumbra={0.9}
@@ -126,13 +126,13 @@ function DiamondMesh({
         <Caustics
           causticsOnly={false}
           backside
-          color="#cfe3ff"
+          color="#d4d8e0"
           position={[0, 0.5, 0]}
           lightSource={[1, 1, 1]}
           worldRadius={0}
           ior={5}
           backsideIOR={4}
-          intensity={hovered ? 0.26 : 0.22}
+          intensity={hovered ? 0.1 : 0.07}
         >
           {meshContent}
         </Caustics>
@@ -146,14 +146,14 @@ function DiamondScene({ variant = 'default' }: { variant?: 'default' | 'login' }
   const isLogin = variant === 'login';
   return (
     <>
-      {!isLogin && <color attach="background" args={['#f6f7fb']} />}
-      <ambientLight intensity={0.7 * Math.PI} color="#d6e9ff" />
+      {!isLogin && <color attach="background" args={['#f9f9f9']} />}
+      <ambientLight intensity={0.7 * Math.PI} color={isLogin ? '#d6e9ff' : '#e2e5eb'} />
       <spotLight
         decay={0}
         position={[4, 4, -8]}
         angle={0.18}
         penumbra={1}
-        intensity={1.2}
+        intensity={4.2}
       />
       <pointLight decay={0} position={[-8, -8, -8]} intensity={0.6} />
       <DiamondMesh envTexture={envTexture} variant={variant} />
@@ -165,10 +165,10 @@ function DiamondScene({ variant = 'default' }: { variant?: 'default' | 'login' }
 export function DiamondBackground() {
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-hidden">
-      <div className=" bg-[#eef5ff] rounded-full blur-[150px] opacity-80 pointer-events-none" />
-      <div className=" bg-[#e9f2ff] rounded-full blur-[220px] opacity-45 pointer-events-none" />
-      <div className="absolute left-0 bottom-0 h-full w-16 bg-gradient-to-r from-[#e6f0ff] to-transparent opacity-90 pointer-events-none" />
-      <div className="absolute right-0 bottom-0 h-full w-16 bg-gradient-to-l from-[#e6f0ff] to-transparent opacity-90 pointer-events-none" />
+      <div className="bg-[#f0f2f6] rounded-full blur-[180px] opacity-5 pointer-events-none" />
+      <div className="bg-[#e8ebf0] rounded-full blur-[240px] opacity-5 pointer-events-none" />
+      <div className="absolute left-0 bottom-0 h-full w-16 bg-gradient-to-r from-[#eef1f6] to-transparent opacity-10 pointer-events-none" />
+      <div className="absolute right-0 bottom-0 h-full w-16 bg-gradient-to-l from-[#eef1f6] to-transparent opacity-10 pointer-events-none" />
       <div className="absolute inset-0 pointer-events-none">
         <Canvas
           shadows
@@ -176,7 +176,7 @@ export function DiamondBackground() {
           gl={{ alpha: true, antialias: true }}
           dpr={[1, 1.5]}
         >
-          <Suspense fallback={<color attach="background" args={['#f6f7fb']} />}>
+          <Suspense fallback={<color attach="background" args={['#f9f9f9']} />}>
             <DiamondScene variant="default" />
           </Suspense>
         </Canvas>

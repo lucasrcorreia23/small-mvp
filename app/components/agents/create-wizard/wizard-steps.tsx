@@ -16,7 +16,7 @@ export function WizardSteps({ currentStep }: WizardStepsProps) {
   const currentIndex = steps.findIndex((s) => s.key === currentStep);
 
   return (
-    <div className="flex items-center justify-center mb-8">
+    <div className="flex items-center justify-center gap-2">
       {steps.map((step, index) => {
         const isActive = step.key === currentStep;
         const isCompleted = index < currentIndex;
@@ -24,14 +24,14 @@ export function WizardSteps({ currentStep }: WizardStepsProps) {
 
         return (
           <div key={step.key} className="flex items-center">
-            {/* Step Circle */}
-            <div className="flex flex-col items-center">
+            {/* Step Circle - horizontal, 4px rounded */}
+            <div className="flex flex-row items-center gap-2">
               <div
-                className={`w-10 h-10 flex items-center justify-center text-sm font-semibold border-2 transition-colors ${
+                className={`w-10 h-10 flex items-center justify-center rounded-[4px] text-sm font-semibold border-2 transition-colors flex-shrink-0 ${
                   isActive
-                    ? 'bg-[#2E63CD] border-[#2E63CD] text-white'
+                    ? 'bg-slate-600 border-slate-600 text-white'
                     : isCompleted
-                    ? 'bg-[#2E63CD] border-[#2E63CD] text-white'
+                    ? 'bg-slate-600 border-slate-600 text-white'
                     : 'bg-white border-slate-300 text-slate-400'
                 }`}
               >
@@ -52,24 +52,14 @@ export function WizardSteps({ currentStep }: WizardStepsProps) {
                   step.number
                 )}
               </div>
-              <span
-                className={`mt-2 text-xs font-medium ${
-                  isActive
-                    ? 'text-[#2E63CD]'
-                    : isCompleted
-                    ? 'text-[#2E63CD]'
-                    : 'text-slate-400'
-                }`}
-              >
-                {step.label}
-              </span>
+             
             </div>
 
             {/* Connector Line */}
             {!isLast && (
               <div
-                className={`w-16 h-0.5 mx-2 ${
-                  isCompleted ? 'bg-[#2E63CD]' : 'bg-slate-300'
+                className={`w-12 h-0.5 mx-1 flex-shrink-0 ${
+                  isCompleted ? 'bg-slate-600' : 'bg-slate-300'
                 }`}
               />
             )}
