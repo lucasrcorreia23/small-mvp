@@ -14,8 +14,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    const offerIdRaw = body.offer_id ?? body.offerId;
+    const offerId = typeof offerIdRaw === 'number' ? offerIdRaw : Number(offerIdRaw);
+    if (Number.isNaN(offerId) || offerId < 1) {
+      return NextResponse.json(
+        { error: 'offer_id é obrigatório e deve ser um número inteiro maior que 0' },
+        { status: 400 }
+      );
+    }
     const apiBody = {
-      offer_id: Number(body.offer_id),
+      offer_id: offerId,
       aditional_instructions: body.aditional_instructions ?? '',
     };
 

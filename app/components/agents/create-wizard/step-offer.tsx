@@ -106,10 +106,14 @@ export function StepOffer({ initialData, onComplete }: StepOfferProps) {
       };
 
       const created = await createOffer(requestData);
-
+      const offerId = typeof created.id === 'number' && !Number.isNaN(created.id) ? created.id : undefined;
+      if (offerId == null) {
+        setError('ID da oferta não retornado pela API. Tente salvar novamente.');
+        return;
+      }
       onComplete({
         ...requestData,
-        id: created.id,
+        id: offerId,
       });
     } catch (err) {
       console.error('Erro ao salvar oferta:', err);

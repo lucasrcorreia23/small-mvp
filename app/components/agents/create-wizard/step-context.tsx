@@ -43,12 +43,17 @@ export function StepContext({ offerId, initialData, onComplete, onBack }: StepCo
   }, []);
 
   const handleGenerate = async () => {
+    const validOfferId = Number(offerId);
+    if (Number.isNaN(validOfferId) || validOfferId < 1) {
+      setError('ID da oferta inválido. Volte à etapa 1 e salve a oferta novamente.');
+      return;
+    }
     setIsGenerating(true);
     setError(null);
 
     try {
       const generated: ContextGenerateResponse = await generateContext({
-        offer_id: offerId,
+        offer_id: validOfferId,
         aditional_instructions: '',
       });
 

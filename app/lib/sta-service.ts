@@ -129,7 +129,10 @@ export async function createOffer(data: OfferCreateRequest): Promise<Offer> {
     method: 'POST',
     body: JSON.stringify(data),
   });
-  return handleResponse<Offer>(response);
+  const raw = await handleResponse<Offer & { offer_id?: number }>(response);
+  // API pode retornar id ou offer_id; normalizar para Offer com id
+  const id = typeof raw.id === 'number' ? raw.id : (typeof raw.offer_id === 'number' ? raw.offer_id : 0);
+  return { ...raw, id } as Offer;
 }
 
 export async function listOffers(): Promise<Offer[]> {
