@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const MOCK_AGENT_LINK = process.env.NEXT_PUBLIC_USE_MOCK_AGENT_LINK === 'true';
+const MOCK_SIGNED_URL = 'wss://mock-agent-link.local/conversation';
+
 /**
  * GET /api/get-agent-link?user_time=10:30
  * Requer token no header Authorization: Bearer {token}
  */
 export async function GET(request: NextRequest) {
   try {
+    if (MOCK_AGENT_LINK) {
+      return NextResponse.json({ signed_url: MOCK_SIGNED_URL });
+    }
+
     // Obter token do header Authorization
     const authHeader = request.headers.get('authorization');
     
@@ -45,6 +52,10 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    if (MOCK_AGENT_LINK) {
+      return NextResponse.json({ signed_url: MOCK_SIGNED_URL });
+    }
+
     // Obter token do header Authorization
     const authHeader = request.headers.get('authorization');
     
@@ -104,14 +115,6 @@ async function processRequest(token: string, userTime: string) {
   // Body: { "user_time": "01:08:06.484Z" }
   const url = `${apiBaseUrl}/get_agent_link/keune`;
 
-  // Log para debug
-  console.log('GetAgentLink API Route - Enviando para API externa:', {
-    url,
-    method: 'POST',
-    body: { user_time: userTime },
-    headers: { Authorization: `Bearer ${token.substring(0, 20)}...` },
-  });
-
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -122,12 +125,6 @@ async function processRequest(token: string, userTime: string) {
   });
 
   const data = await response.json();
-  
-  console.log('GetAgentLink API Route - Resposta:', {
-    status: response.status,
-    ok: response.ok,
-    data: data,
-  });
 
   if (!response.ok) {
     // Tratar erro 401 (token expirado)
@@ -138,10 +135,18 @@ async function processRequest(token: string, userTime: string) {
       );
     }
     
-    // Tratar erro 403 (sem permissão)
+    // Tratar erro 403 (sem permissão): priorizar mensagem do backend (ex.: "User organization does not have access")
     if (response.status === 403) {
+      const backendMsg = typeof data.detail === 'string' ? data.detail : data.message;
+      const isOrgAccess =
+        typeof backendMsg === 'string' &&
+        (backendMsg.includes('organization') && backendMsg.toLowerCase().includes('does not have access'));
+      const errorMessage = isOrgAccess
+        ? 'Sua conta ainda não tem organização com acesso a este recurso. Crie uma organização no cadastro ou faça login com uma conta que já tenha organização.'
+        : (backendMsg as string) ||
+          'Você não tem permissão para acessar o agente. Verifique se o recurso specialist_consultant está habilitado.';
       return NextResponse.json(
-        { error: 'Você não tem permissão para acessar o agente. Verifique se o recurso specialist_consultant está habilitado.', details: data },
+        { error: errorMessage, details: data },
         { status: 403 }
       );
     }

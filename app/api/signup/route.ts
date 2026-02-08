@@ -1,18 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+/** Extrai mensagem de erro do corpo da Auth API (vários formatos possíveis) */
+function getApiErrorMessage(data: unknown): string | null {
+  if (data == null || typeof data !== 'object') return null;
+  const d = data as Record<string, unknown>;
+  if (typeof d.message === 'string') return d.message;
+  if (typeof d.error === 'string') return d.error;
+  if (typeof d.detail === 'string') return d.detail;
+  if (typeof d._raw === 'string' && d._raw.trim()) return d._raw.trim();
+  if (Array.isArray(d.detail) && d.detail[0] != null) {
+    const first = d.detail[0] as Record<string, unknown>;
+    if (typeof first?.msg === 'string') return first.msg;
+  }
+  if (d.detail && typeof d.detail === 'object' && !Array.isArray(d.detail)) {
+    const detail = d.detail as Record<string, unknown>;
+    if (typeof detail.message === 'string') return detail.message;
+  }
+  return null;
+}
+
+/** Body alinhado ao Auth API POST /auth/create_user */
 interface SignupRequest {
   name: string;
   email: string;
   password: string;
   nickname?: string;
   gender_slug?: string;
-  address_country_slug?: string;
-  address_state_slug?: string;
-  address_city?: string;
   cell_phone?: string;
-  company?: string;
-  company_site?: string;
-  position?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -35,100 +49,82 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Endpoint correto: POST /specialist_consultant/create_user/keune
-    const response = await fetch(`${apiBaseUrl}/create_user/keune`, {
+    const authBaseUrl = apiBaseUrl.includes('/specialist_consultant')
+      ? apiBaseUrl.replace('/specialist_consultant', '')
+      : apiBaseUrl.replace(/\/$/, '');
+
+    // Path do Auth: padrão /auth (OpenAPI servers url). Use AUTH_BASE_PATH vazio se o create_user estiver na raiz.
+    const authPath = (process.env.AUTH_BASE_PATH ?? process.env.NEXT_PUBLIC_AUTH_BASE_PATH ?? '/auth').replace(/\/$/, '') || '';
+    const pathPrefix = authPath ? `/${authPath.replace(/^\//, '')}` : '';
+
+    // Auth API CreateUser Input: name, email, password required; nickname, gender_slug, cell_phone optional (omit when empty)
+    const payload: Record<string, string> = {
+      name: body.name.trim(),
+      email: body.email.trim(),
+      password: body.password,
+    };
+    const nickname = body.nickname?.trim();
+    const genderSlug = body.gender_slug?.trim();
+    const cellPhone = body.cell_phone?.trim();
+    if (nickname) payload.nickname = nickname;
+    if (genderSlug) payload.gender_slug = genderSlug;
+    if (cellPhone) payload.cell_phone = cellPhone;
+
+    // Auth API: POST {base}{pathPrefix}/create_user (pathPrefix padrão: /auth)
+    const createUserUrl = `${authBaseUrl}${pathPrefix}/create_user`;
+    const response = await fetch(createUserUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include', // Importante: inclui cookies
-      body: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     });
 
-    // Logar TODOS os headers da resposta
-    console.log('📥 SIGNUP API ROUTE - HEADERS DA RESPOSTA:');
-    const responseHeaders: Record<string, string> = {};
-    response.headers.forEach((value, key) => {
-      responseHeaders[key] = value;
-      console.log(`  ${key}: ${value}`);
-    });
-
-    // Verificar cookies
-    const setCookieHeader = response.headers.get('set-cookie');
-    if (setCookieHeader) {
-      console.log('🍪 COOKIES RECEBIDOS:', setCookieHeader);
-    } else {
-      console.log('🍪 Nenhum cookie recebido');
-    }
-
-    const data = await response.json();
-
-    // Log detalhado para debug
-    console.log('📊 Signup API Route - Resposta completa:', {
-      status: response.status,
-      statusText: response.statusText,
-      ok: response.ok,
-      url: response.url,
-      headers: responseHeaders,
-      cookies: setCookieHeader,
-      data: data,
-      dataKeys: Object.keys(data),
-    });
-
-    // Verificar se há token em algum lugar
-    console.log('🔑 PROCURANDO TOKEN NA RESPOSTA:');
-    if (data?.token) {
-      console.log('  ✅ Token encontrado em data.token');
-    }
-    if (data?.access_token) {
-      console.log('  ✅ Access token encontrado em data.access_token');
-    }
-    if (data?.accessToken) {
-      console.log('  ✅ Access token encontrado em data.accessToken');
-    }
-    if (setCookieHeader) {
-      console.log('  ✅ Cookie encontrado (pode conter token)');
+    const rawText = await response.text();
+    let data: Record<string, unknown>;
+    try {
+      data = rawText ? (JSON.parse(rawText) as Record<string, unknown>) : {};
+    } catch {
+      data = { _raw: rawText.slice(0, 500) };
     }
 
     if (!response.ok) {
-      // Tratar erro 409 (usuário já existe)
+      const message = getApiErrorMessage(data);
+      console.error('[signup] Auth API error:', {
+        method: 'POST',
+        url: createUserUrl,
+        status: response.status,
+        body: data,
+        extractedMessage: message,
+      });
+
       if (response.status === 409) {
         return NextResponse.json(
-          { error: 'Usuário já cadastrado. Faça login para continuar.', details: data },
+          { error: message || 'Usuário já cadastrado. Faça login para continuar.', details: data },
           { status: 409 }
         );
       }
-      
-      // Tratar erro 400/422 (validação)
       if (response.status === 400 || response.status === 422) {
-        const errorMessage = data.detail?.[0]?.msg || data.message || data.error || 'Erro de validação';
         return NextResponse.json(
-          { error: errorMessage, details: data },
+          { error: message || 'Erro de validação', details: data },
           { status: response.status }
         );
       }
-      
-      // Retornar erro de validação (422) ou outros erros
+      const fallbackMessage =
+        typeof data._raw === 'string'
+          ? `Resposta da API (não-JSON): ${data._raw.slice(0, 200)}${data._raw.length > 200 ? '…' : ''}`
+          : 'Erro ao criar usuário';
       return NextResponse.json(
-        { error: data.detail || data.message || 'Erro ao criar usuário', details: data },
+        { error: message || fallbackMessage, details: data },
         { status: response.status }
       );
     }
 
-    // Retornar dados do usuário criado + headers e cookies para análise
-    const responseToClient = NextResponse.json(data, { status: response.status });
-    
-    // Repassar cookies se houver
-    if (setCookieHeader) {
-      responseToClient.headers.set('set-cookie', setCookieHeader);
-      console.log('🍪 Cookie repassado para o cliente');
-    }
-    
-    return responseToClient;
+    // Spec: create_user retorna { id, name, email }. Token é obtido via /login subsequente.
+    return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    console.error('Error in signup:', error);
+    console.error('Signup API error:', error);
+    const message = error instanceof Error ? error.message : 'Erro interno do servidor';
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { error: message },
       { status: 500 }
     );
   }

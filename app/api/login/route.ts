@@ -20,8 +20,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Auth endpoints usam a base https://api.perfecting.app (sem /specialist_consultant)
-    const authBaseUrl = apiBaseUrl.replace('/specialist_consultant', '');
+    // Auth base: URL raiz (homolog api-hml.perfecting.app ou producao api.perfecting.app)
+    const authBaseUrl = apiBaseUrl.includes('/specialist_consultant')
+      ? apiBaseUrl.replace('/specialist_consultant', '')
+      : apiBaseUrl.replace(/\/$/, '');
+
+    // Path do Auth: mesmo que signup e create-organization (OpenAPI servers url)
+    const authPath = (process.env.AUTH_BASE_PATH ?? process.env.NEXT_PUBLIC_AUTH_BASE_PATH ?? '/auth').replace(/\/$/, '') || '';
+    const pathPrefix = authPath ? `/${authPath.replace(/^\//, '')}` : '';
+    const loginUrl = `${authBaseUrl}${pathPrefix}/login`;
 
     // OAuth2 password flow - form-urlencoded
     const formData = new URLSearchParams();
@@ -29,9 +36,7 @@ export async function POST(request: NextRequest) {
     formData.append('username', email); // API usa username, enviamos email
     formData.append('password', password);
 
-    console.log('Login API Route - Enviando para:', `${authBaseUrl}/auth/login`);
-
-    const response = await fetch(`${authBaseUrl}/auth/login`, {
+    const response = await fetch(loginUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -39,28 +44,46 @@ export async function POST(request: NextRequest) {
       body: formData.toString(),
     });
 
-    const data = await response.json();
-
-    console.log('Login API Route - Resposta:', {
-      status: response.status,
-      ok: response.ok,
-      data: data,
-    });
+    let data: Record<string, unknown> = {};
+    try {
+      data = await response.json();
+    } catch {
+      // Backend pode retornar corpo não-JSON em alguns erros
+    }
 
     if (!response.ok) {
+      const detail = data.detail;
+      let errorMessage = 'Credenciais inválidas. Verifique email e senha.';
+      if (typeof detail === 'string') {
+        errorMessage = detail;
+      } else if (Array.isArray(detail) && detail.length > 0) {
+        const first = detail[0] as { msg?: string };
+        errorMessage = first?.msg || errorMessage;
+      } else if (data.error && typeof data.error === 'string') {
+        errorMessage = data.error;
+      } else if (data.message && typeof data.message === 'string') {
+        errorMessage = data.message;
+      }
       return NextResponse.json(
-        { error: data.detail || 'Credenciais inválidas' },
+        { error: errorMessage },
         { status: response.status }
       );
     }
 
+    let token: string = data.access_token ?? data.token ?? '';
+    // Diagnóstico: detectar se backend retorna token com prefixo "Bearer"
+    console.log(`[login] Token type: ${typeof token}, first 40 chars: "${String(token).substring(0, 40)}"`);
+    console.log(`[login] Token starts with "Bearer"?: ${String(token).toLowerCase().startsWith('bearer ')}`);
+    // Fix: remover prefixo "Bearer " caso o backend o inclua no access_token
+    if (typeof token === 'string' && token.toLowerCase().startsWith('bearer ')) {
+      token = token.substring(7).trim();
+    }
     return NextResponse.json({
-      access_token: data.access_token,
+      access_token: token,
       token_type: data.token_type,
       user_scope: data.user_scope,
     });
   } catch (error) {
-    console.error('Login error:', error);
     return NextResponse.json(
       { error: 'Erro interno do servidor' },
       { status: 500 }

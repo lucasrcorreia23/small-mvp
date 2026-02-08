@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { LoadingView } from '@/app/components/loading-view';
+import { getToken, logout as authLogout } from '@/app/lib/auth-service';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -13,26 +15,20 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const hasCheckedAuth = useRef(false);
 
   useEffect(() => {
-    // Prevenir múltiplas execuções
     if (hasCheckedAuth.current) return;
     hasCheckedAuth.current = true;
 
-    // Verificar access_token (nome correto do token)
-    const token = localStorage.getItem('access_token');
+    const token = getToken();
     if (token) {
       setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
       router.replace('/');
     }
-  }, [router]); // Array vazio: executa apenas uma vez
+  }, [router]);
 
   if (isAuthenticated === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#2E63CD] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+    return <LoadingView message="Carregando..." />;
   }
 
   if (!isAuthenticated) {
@@ -46,8 +42,7 @@ export function useLogout() {
   const router = useRouter();
 
   const logout = useCallback(() => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('perfecting_agent_link');
+    authLogout();
     router.replace('/');
   }, [router]);
 

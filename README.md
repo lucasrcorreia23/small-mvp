@@ -2,6 +2,18 @@
 
 Aplicacao demo para conversas por voz com agentes ElevenLabs, com interface premium e identidade visual Perfecting.
 
+Repositório: [github.com/lucasrcorreia23/small-mvp](https://github.com/lucasrcorreia23/small-mvp)
+
+## Branches
+
+| Branch     | Ambiente     | Uso                                      |
+|-----------|--------------|------------------------------------------|
+| `master`  | **Produção** | Deploy em produção (api.perfecting.app)  |
+| `homolog` | **Homologação** | Deploy em homologação (testes antes de produção) |
+
+- **Produção:** alterações estáveis; merge a partir de `homolog` após validação.
+- **Homologação:** desenvolvimento e testes; merge a partir de `master` para sincronizar.
+
 ## Stack
 
 - **Next.js 15** com App Router

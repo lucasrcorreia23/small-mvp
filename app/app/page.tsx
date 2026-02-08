@@ -7,7 +7,7 @@ function AgentPage() {
   return (
     <main className="min-h-screen relative overflow-hidden">
       <header className="fixed top-0 left-0 right-0 z-20 px-6 py-5">
-        <h1 className="text-xl font-semibold text-black tracking-tight text-center font-raleway">
+        <h1 className="text-xl font-semibold text-black tracking-tight text-center font-sans">
           Perfecting
         </h1>
       </header>

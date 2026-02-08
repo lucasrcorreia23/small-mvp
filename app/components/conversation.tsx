@@ -7,6 +7,7 @@ import {
   type AgentState,
 } from './ui/bar-visualizer';
 import { useLogout } from './auth-guard';
+import { getToken, logout as authLogout } from '@/app/lib/auth-service';
 
 const AGENT_NAME = 'Agente Especialista Keune';
 
@@ -73,8 +74,7 @@ export function Conversation() {
       return savedLink;
     }
 
-    // Obter token do localStorage (access_token)
-    const token = localStorage.getItem('access_token');
+    const token = getToken();
     if (!token) {
       throw new Error('Token de autenticação não encontrado. Faça login novamente.');
     }
@@ -97,19 +97,23 @@ export function Conversation() {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      
-      // Tratar erro 401 (token expirado)
+      const apiError =
+        typeof errorData?.error === 'string' ? errorData.error : null;
+
       if (response.status === 401) {
-        localStorage.removeItem('access_token');
-        throw new Error('Sessão expirada. Faça login novamente.');
+        authLogout();
+        throw new Error(apiError || 'Sessão expirada. Faça login novamente.');
       }
-      
-      // Tratar erro 403 (sem permissão)
+
+      // Tratar erro 403 (sem permissão / organização sem acesso): exibir mensagem da API
       if (response.status === 403) {
-        throw new Error('Você não tem permissão para acessar o agente.');
+        throw new Error(
+          apiError ||
+            'Sua conta ainda não tem organização com acesso a este recurso. Crie uma organização no cadastro ou faça login com uma conta que já tenha organização.'
+        );
       }
-      
-      throw new Error(errorData.error || `Falha ao obter URL: ${response.statusText}`);
+
+      throw new Error(apiError || `Falha ao obter URL: ${response.statusText}`);
     }
 
     const data = await response.json();
