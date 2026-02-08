@@ -70,18 +70,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const rawToken = data.access_token ?? data.token ?? '';
-    const token: string = typeof rawToken === 'string' ? rawToken : '';
+    const rawToken: unknown = data.access_token ?? data.token ?? '';
+    let token: string = typeof rawToken === 'string' ? rawToken : '';
     // Diagnóstico: detectar se backend retorna token com prefixo "Bearer"
     console.log(`[login] Token type: ${typeof token}, first 40 chars: "${String(token).substring(0, 40)}"`);
     console.log(`[login] Token starts with "Bearer"?: ${String(token).toLowerCase().startsWith('bearer ')}`);
     // Fix: remover prefixo "Bearer " caso o backend o inclua no access_token
-    let normalizedToken = token;
     if (token.toLowerCase().startsWith('bearer ')) {
-      normalizedToken = token.substring(7).trim();
+      token = token.substring(7).trim();
     }
     return NextResponse.json({
-      access_token: normalizedToken,
+      access_token: token,
       token_type: data.token_type,
       user_scope: data.user_scope,
     });
