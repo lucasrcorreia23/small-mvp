@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { AuthGuard } from '@/app/components/auth-guard';
+import { AppHeader } from '@/app/components/app-header';
 import { LoadingView } from '@/app/components/loading-view';
 import { SpinMetricsDisplay } from '@/app/components/results/spin-metrics';
 import { CallResult, Agent } from '@/app/lib/types/sta';
@@ -80,20 +81,7 @@ function ResultsPageContent() {
 
   return (
     <main className="min-h-screen relative">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-20 px-3 py-5 bg-white/30 backdrop-blur-sm border-b border-white/20">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <span className="text-lg font-semibold text-slate-900 tracking-tight font-sans">
-            Perfecting
-          </span>
-          <button
-            onClick={handleBack}
-            className="text-sm font-medium text-[#2E63CD] hover:text-slate-700 transition-colors"
-          >
-            Voltar
-          </button>
-        </div>
-      </header>
+      <AppHeader />
 
       {/* Content */}
       <div className="relative z-10 pt-24 pb-12 px-6">

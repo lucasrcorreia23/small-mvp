@@ -2,17 +2,14 @@
 
 import { Conversation } from '../components/conversation';
 import { AuthGuard } from '../components/auth-guard';
+import { AppHeader } from '../components/app-header';
 
 function AgentPage() {
   return (
     <main className="min-h-screen relative overflow-hidden">
-      <header className="fixed top-0 left-0 right-0 z-20 px-6 py-5">
-        <h1 className="text-xl font-semibold text-black tracking-tight text-center font-sans">
-          Perfecting
-        </h1>
-      </header>
+      <AppHeader />
 
-      <div className="min-h-screen flex items-center justify-center px-6">
+      <div className="relative z-10 pt-24 min-h-screen flex items-center justify-center px-6">
         <Conversation />
       </div>
     </main>

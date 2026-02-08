@@ -250,7 +250,7 @@ export default function LoginPage() {
 
         {/* Right column: transparente para o diamante aparecer atrás; só o card cobre */}
         <div className="flex flex-col items-center justify-center shrink-0 p-4 lg:p-8 order-2">
-        <div className="w-full max-w-sm card-surface shadow-2xl p-8">
+        <div className="w-full max-w-sm card-surface border border-slate-400 shadow-sm p-8">
           <div className="text-center mb-8">
             <h2 className="text-xl font-semibold text-slate-800 mb-2">
               {mode === 'login'

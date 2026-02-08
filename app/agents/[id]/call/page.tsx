@@ -4,7 +4,8 @@ import { useConversation } from '@elevenlabs/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { AuthGuard, useLogout } from '@/app/components/auth-guard';
+import { AuthGuard } from '@/app/components/auth-guard';
+import { AppHeader } from '@/app/components/app-header';
 import { LoadingView } from '@/app/components/loading-view';
 import { BarVisualizer, type AgentState } from '@/app/components/ui/bar-visualizer';
 import { Agent } from '@/app/lib/types/sta';
@@ -67,7 +68,6 @@ interface TranscriptEntry {
 function CallPageContent() {
   const params = useParams();
   const router = useRouter();
-  const logout = useLogout();
   const agentId = Number(params.id);
 
   const [agent, setAgent] = useState<Agent | null>(null);
@@ -339,20 +339,7 @@ function CallPageContent() {
   if (error && !agent) {
     return (
       <main className="min-h-screen relative">
-        <header className="fixed top-0 left-0 right-0 z-20 px-6 py-3 bg-white/30 backdrop-blur-sm border-b border-white/20">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
-            <span className="text-lg font-semibold text-slate-900 tracking-tight font-sans">Perfecting</span>
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 text-sm font-medium text-slate-900 hover:text-slate-600 transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden>
-                <path fillRule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5A1.5 1.5 0 007.5 20h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm5.03 4.72a.75.75 0 010 1.06l-1.72 1.72h10.94a.75.75 0 010 1.5H10.81l1.72 1.72a.75.75 0 11-1.06 1.06l-3-3a.75.75 0 010-1.06l3-3a.75.75 0 011.06 0z" clipRule="evenodd" />
-              </svg>
-              Sair
-            </button>
-          </div>
-        </header>
+        <AppHeader />
         <div className="relative z-10 pt-24 min-h-screen flex items-center justify-center p-6">
           <div className="card-surface p-8 max-w-md w-full text-center">
             <div className="text-red-600 bg-red-50 border border-red-200 rounded-sm p-4 mb-6">
@@ -372,20 +359,7 @@ function CallPageContent() {
 
   return (
     <main className="min-h-screen relative">
-      <header className="fixed top-0 left-0 right-0 z-20 px-6 py-3 bg-white/30 backdrop-blur-sm border-b border-white/20">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <span className="text-lg font-semibold text-slate-900 tracking-tight font-sans">Perfecting</span>
-          <button
-            onClick={logout}
-            className="flex items-center gap-2 text-sm font-medium text-slate-900 hover:text-slate-600 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden>
-              <path fillRule="evenodd" d="M7.5 3.75A1.5 1.5 0 006 5.25v13.5A1.5 1.5 0 007.5 20h6a1.5 1.5 0 001.5-1.5V15a.75.75 0 011.5 0v3.75a3 3 0 01-3 3h-6a3 3 0 01-3-3V5.25a3 3 0 013-3h6a3 3 0 013 3V9A.75.75 0 0115 9V5.25a1.5 1.5 0 00-1.5-1.5h-6zm5.03 4.72a.75.75 0 010 1.06l-1.72 1.72h10.94a.75.75 0 010 1.5H10.81l1.72 1.72a.75.75 0 11-1.06 1.06l-3-3a.75.75 0 010-1.06l3-3a.75.75 0 011.06 0z" clipRule="evenodd" />
-            </svg>
-            Sair
-          </button>
-        </div>
-      </header>
+      <AppHeader />
       <div className="relative z-10 pt-24 min-h-screen flex items-center justify-center p-6">
         <div className="w-full max-w-md mx-auto">
           <div className="card-surface px-8 py-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]">
