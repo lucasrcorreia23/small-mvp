@@ -174,7 +174,7 @@ export function StepOffer({ initialData, onComplete, onCancel, setFooterContent 
               type="text"
               value={offerName}
               onChange={(e) => setOfferName(e.target.value)}
-              placeholder="Ex: Software de Gestao Empresarial"
+              placeholder="Ex: Plataforma SaaS de gestao de vendas"
               className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
             />
           </div>
@@ -183,7 +183,7 @@ export function StepOffer({ initialData, onComplete, onCancel, setFooterContent 
             <textarea
               value={offerDescriptionText}
               onChange={(e) => setOfferDescriptionText(e.target.value)}
-              placeholder="Descreva brevemente o que e sua oferta e seus principais beneficios..."
+              placeholder="Ex: Software que ajuda equipes comerciais B2B a aumentar conversao com treinamento pratico e analise SPIN em tempo real"
               rows={8}
               className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
             />
@@ -235,111 +235,111 @@ export function StepOffer({ initialData, onComplete, onCancel, setFooterContent 
         <div className="w-full lg:w-[60%] lg:pl-8">
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Publico-alvo</label>
+              <label className="text-sm font-medium text-slate-700">Público-alvo</label>
               <input
                 type="text"
                 value={targetAudienceDescription}
                 onChange={(e) => setTargetAudienceDescription(e.target.value)}
-                placeholder="Quem e o publico-alvo da oferta"
+                placeholder="Ex: Gerentes comerciais de empresas B2B com 50-500 funcionarios"
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Industrias ou dominios-alvo</label>
+              <label className="text-sm font-medium text-slate-700">Indústrias ou domínios-alvo</label>
               <input
                 type="text"
                 value={targetIndustries}
                 onChange={(e) => setTargetIndustries(e.target.value)}
-                placeholder="Ex: Tecnologia, Saude, Varejo"
+                placeholder="Ex: Tecnologia, SaaS, Servicos Financeiros, Consultoria"
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Problema Principal Resolvido</label>
+              <label className="text-sm font-medium text-slate-700">Problema principal resolvido</label>
               <input
                 type="text"
                 value={primaryProblemSolved}
                 onChange={(e) => setPrimaryProblemSolved(e.target.value)}
-                placeholder="Qual problema principal a oferta resolve"
+                placeholder="Ex: Equipes perdem 60% do tempo em tarefas manuais sem visibilidade de pipeline"
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Proposta de Valor</label>
+              <label className="text-sm font-medium text-slate-700">Proposta de valor</label>
               <textarea
                 value={coreValueProposition}
                 onChange={(e) => setCoreValueProposition(e.target.value)}
-                placeholder="Qual a proposta de valor principal"
+                placeholder="Ex: Aumente em 40% a taxa de conversao com treinamento pratico baseado em IA e metricas SPIN"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Principais Caracteristicas e Beneficios</label>
+              <label className="text-sm font-medium text-slate-700">Principais características e benefícios</label>
               <textarea
                 value={keyFeaturesAndBenefits}
                 onChange={(e) => setKeyFeaturesAndBenefits(e.target.value)}
-                placeholder="Liste as principais caracteristicas e beneficios"
+                placeholder="Ex: Simulacoes com IA; Analise SPIN automatizada; Dashboard de desempenho; Cenarios por industria"
                 rows={3}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Diferenciais Unicos</label>
+              <label className="text-sm font-medium text-slate-700">Diferenciais competitivos</label>
               <textarea
                 value={uniqueSellingPoints}
                 onChange={(e) => setUniqueSellingPoints(e.target.value)}
-                placeholder="O que torna sua oferta unica no mercado"
+                placeholder="Ex: Unica plataforma que combina IA conversacional com metodologia SPIN Selling"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Diferenciação Competitiva</label>
+              <label className="text-sm font-medium text-slate-700">Diferenciação competitiva</label>
               <textarea
                 value={competitiveDiff}
                 onChange={(e) => setCompetitiveDiff(e.target.value)}
-                placeholder="Como sua oferta se diferencia da concorrencia"
+                placeholder="Ex: Pratica ilimitada com personas de IA realistas, sem depender de colegas ou gestores"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Metodo de Entrega</label>
+              <label className="text-sm font-medium text-slate-700">Método de entrega</label>
               <input
                 type="text"
                 value={deliveryMethod}
                 onChange={(e) => setDeliveryMethod(e.target.value)}
-                placeholder="Ex: SaaS, On-premise, Hibrido"
+                placeholder="Ex: Plataforma web via navegador com app mobile complementar"
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Processo de Implementacao e Onboarding</label>
+              <label className="text-sm font-medium text-slate-700">Processo de implementação</label>
               <textarea
                 value={implementationProcess}
                 onChange={(e) => setImplementationProcess(e.target.value)}
-                placeholder="Como e o processo de implementacao e onboarding"
+                placeholder="Ex: Onboarding assistido em 48h, setup de cenarios em 5 dias uteis, treinamento incluso"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Modelo de Suporte ao Cliente</label>
+              <label className="text-sm font-medium text-slate-700">Suporte ao cliente</label>
               <input
                 type="text"
                 value={customerSupport}
                 onChange={(e) => setCustomerSupport(e.target.value)}
-                placeholder="Ex: Suporte dedicado, Self-service, SLA"
+                placeholder="Ex: Suporte via chat 24/7, gerente de sucesso dedicado para planos Enterprise"
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Resumo de Precos</label>
+              <label className="text-sm font-medium text-slate-700">Precificação</label>
               <textarea
                 value={pricingDetails}
                 onChange={(e) => setPricingDetails(e.target.value)}
-                placeholder="Resumo do modelo de precificacao"
+                placeholder="Ex: A partir de R$ 89/usuario/mes, desconto progressivo, trial gratuito de 14 dias"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />

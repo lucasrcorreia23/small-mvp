@@ -53,7 +53,7 @@ export function AgentCard({ agent }: AgentCardProps) {
   const showAvatarInitials = meta?.avatarType === 'initials' || (meta && !showAvatarUpload);
 
   const handleClick = () => {
-    router.push(`/agents/${agent.id}/call`);
+    router.push(`/agents/${agent.id}/details`);
   };
 
   return (

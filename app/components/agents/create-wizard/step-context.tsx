@@ -168,14 +168,14 @@ export function StepContext({ offerId, initialData, onComplete, onBack, setFoote
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-0">
-        {/* Left Column: label + text + textarea + infer toggle + generate (same pattern as Oferta) */}
+        {/* Left Column: textarea + infer toggle + generate */}
         <div className="w-full lg:w-[40%] lg:flex-shrink-0 lg:pr-8 space-y-6">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-slate-700">Descrição para a IA</label>
             <textarea
               value={additionalInstructions}
               onChange={(e) => setAdditionalInstructions(e.target.value)}
-              placeholder="Descreva quem e seu cliente ideal, contexto de compra e desafios..."
+              placeholder="Ex: Diretor de TI de empresa de logistica, frustrado com sistemas legados, precisa modernizar operacao"
               rows={8}
               className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
             />
@@ -233,131 +233,131 @@ export function StepContext({ offerId, initialData, onComplete, onBack, setFoote
           )}
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Nome do Contexto *</label>
+              <label className="text-sm font-medium text-slate-700">Nome do perfil</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Ex: Gerente Comercial - Empresa de Tecnologia"
+                placeholder="Ex: Diretor de TI - Empresa de Logistica"
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Descricao do Comprador *</label>
+              <label className="text-sm font-medium text-slate-700">Descrição do perfil</label>
               <textarea
                 value={targetDescription}
                 onChange={(e) => setTargetDescription(e.target.value)}
-                placeholder="Descreva o perfil do comprador ideal..."
+                placeholder="Ex: Carlos, 45 anos, diretor de TI, frustrado com sistemas legados e perda de eficiencia operacional"
                 rows={3}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Eventos Motivadores</label>
+              <label className="text-sm font-medium text-slate-700">Eventos catalisadores</label>
               <textarea
                 value={compellingEvents}
                 onChange={(e) => setCompellingEvents(e.target.value)}
-                placeholder="Eventos ou situacoes que motivam o comprador a agir..."
+                placeholder="Ex: Empresa perdeu 2 clientes grandes no ultimo semestre por falta de rastreamento"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Prioridades Estrategicas</label>
+              <label className="text-sm font-medium text-slate-700">Prioridades estratégicas</label>
               <textarea
                 value={strategicPriorities}
                 onChange={(e) => setStrategicPriorities(e.target.value)}
-                placeholder="Prioridades estrategicas do comprador..."
+                placeholder="Ex: Reduzir custos operacionais em 20%, modernizar sistemas ate o fim do ano"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Dores e Problemas Quantificaveis</label>
+              <label className="text-sm font-medium text-slate-700">Dores quantificáveis</label>
               <textarea
                 value={quantifiablePainPoints}
                 onChange={(e) => setQuantifiablePainPoints(e.target.value)}
-                placeholder="Quais sao as dores concretas e quantificaveis do comprador..."
+                placeholder="Ex: Processos manuais custam 40% mais, lead time 3x maior que concorrentes digitalizados"
                 rows={3}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Estado Futuro Desejado</label>
+              <label className="text-sm font-medium text-slate-700">Estado futuro desejado</label>
               <textarea
                 value={desiredFutureState}
                 onChange={(e) => setDesiredFutureState(e.target.value)}
-                placeholder="Como o comprador imagina o cenario ideal apos resolver os problemas..."
+                placeholder="Ex: Operacao integrada com pedidos online e rastreamento em tempo real para clientes"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Principais Direcionadores de Valor</label>
+              <label className="text-sm font-medium text-slate-700">Principais drivers de valor</label>
               <textarea
                 value={primaryValueDrivers}
                 onChange={(e) => setPrimaryValueDrivers(e.target.value)}
-                placeholder="O que mais valoriza na decisao de compra..."
+                placeholder="Ex: ROI comprovado em 90 dias, facilidade de uso, suporte dedicado na transicao"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Processo Típico de Decisao</label>
+              <label className="text-sm font-medium text-slate-700">Processo de decisão</label>
               <textarea
                 value={decisionMakingProcess}
                 onChange={(e) => setDecisionMakingProcess(e.target.value)}
-                placeholder="Como o comprador costuma tomar decisoes..."
+                placeholder="Ex: Consulta diretoria, avalia 2-3 fornecedores, piloto de 30 dias, decisao colegiada"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Nivel de Aversao a Risco</label>
+              <label className="text-sm font-medium text-slate-700">Nível de aversão ao risco</label>
               <input
                 type="text"
                 value={riskAversionLevel}
                 onChange={(e) => setRiskAversionLevel(e.target.value)}
-                placeholder="Ex: Medio - aberto a novas solucoes com evidencias"
+                placeholder="Ex: Alto - cauteloso com mudancas que afetem a operacao atual"
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Objecoes e Preocupacoes da Persona</label>
+              <label className="text-sm font-medium text-slate-700">Objeções e preocupações</label>
               <textarea
                 value={personaObjections}
                 onChange={(e) => setPersonaObjections(e.target.value)}
-                placeholder="Quais objecoes e preocupacoes o comprador pode levantar..."
+                placeholder="Ex: Nao quero trocar tudo de uma vez, investimento alto para o momento, funcionarios vao resistir"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Consciencia do Problema</label>
+              <label className="text-sm font-medium text-slate-700">Consciência do problema</label>
               <textarea
                 value={awarenessProblem}
                 onChange={(e) => setAwarenessProblem(e.target.value)}
-                placeholder="Nivel de consciencia do comprador em relacao ao problema..."
+                placeholder="Ex: Alta - sente a pressao do mercado diariamente mas nao sabe por onde comecar"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Consciencia das Solucoes</label>
+              <label className="text-sm font-medium text-slate-700">Consciência das soluções</label>
               <textarea
                 value={awarenessSolutions}
                 onChange={(e) => setAwarenessSolutions(e.target.value)}
-                placeholder="Nivel de consciencia sobre solucoes disponiveis..."
+                placeholder="Ex: Baixa - sabe que precisa digitalizar mas nao entende as opcoes disponiveis"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Solucoes Existentes Utilizadas</label>
+              <label className="text-sm font-medium text-slate-700">Soluções atuais</label>
               <textarea
                 value={existingSolutions}
                 onChange={(e) => setExistingSolutions(e.target.value)}
-                placeholder="Solucoes ou alternativas que o comprador ja utiliza..."
+                placeholder="Ex: ERP basico legado, planilhas Excel, comunicacao por telefone e WhatsApp"
                 rows={2}
                 className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
               />

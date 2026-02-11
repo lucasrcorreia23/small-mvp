@@ -293,7 +293,37 @@ export interface Agent {
 
 // ============ WIZARD STATE ============
 
-export type WizardStep = 'offer' | 'context' | 'case-setup';
+export type WizardStep = 'offer' | 'context' | 'case-setup' | 'review';
+
+export interface ScenarioFormData {
+  call_context_type_slug: string;
+  scenario_difficulty_level: string;
+  training_targeted_sales_skill: string;
+  additional_instructions: string;
+}
+
+export interface ReviewPersona {
+  name: string;
+  company: string;
+  communication_style: string;
+  avatarData?: string;
+}
+
+export interface ReviewData {
+  training_name: string;
+  training_description: string;
+  persona: ReviewPersona;
+  criteria: string[];
+  skills: string[];
+}
+
+export interface RoleplayDetail extends Agent {
+  training_objective: string;
+  persona_profile: PersonaOutput;
+  company_profile: EmployerCompanyOutput;
+  salesperson_success_criteria: string[];
+  training_targeted_sales_skills: string[];
+}
 
 export interface WizardState {
   currentStep: WizardStep;
@@ -332,11 +362,17 @@ export interface SpinMetrics {
 
 // ============ CALL RESULT ============
 
+export interface RubricResult {
+  criterion: string;
+  met: boolean;
+}
+
 export interface CallResult {
   id: string;
   agent_id: number;
   duration_seconds: number;
   spin_metrics: SpinMetrics;
+  rubric_results?: RubricResult[];
   transcript?: string;
   created_at: string;
 }

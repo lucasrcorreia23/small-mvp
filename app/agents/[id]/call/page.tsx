@@ -2,7 +2,8 @@
 
 import { useConversation } from '@elevenlabs/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { Suspense } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { AuthGuard } from '@/app/components/auth-guard';
 import { AppHeader } from '@/app/components/app-header';
@@ -68,7 +69,9 @@ interface TranscriptEntry {
 function CallPageContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const agentId = Number(params.id);
+  const autoStart = searchParams.get('auto_start') === '1';
 
   const [agent, setAgent] = useState<Agent | null>(null);
   const [isLoadingAgent, setIsLoadingAgent] = useState(true);
@@ -306,6 +309,18 @@ function CallPageContent() {
     router.push(`/agents/${agentId}/results`);
   }, [agentId, router]);
 
+  // Auto-start call when coming from details (auto_start=1)
+  const autoStartedRef = useRef(false);
+  useEffect(() => {
+    if (!agent || !autoStart || autoStartedRef.current) return;
+    autoStartedRef.current = true;
+    if (MOCK_CALL) {
+      startMockCall();
+    } else {
+      startRealCall();
+    }
+  }, [agent, autoStart, MOCK_CALL, startMockCall, startRealCall]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -329,7 +344,7 @@ function CallPageContent() {
   }, [MOCK_CALL, conversation.status, conversation.isSpeaking, hasStarted, mockState, currentSpeaker]);
 
   const handleBack = () => {
-    router.push('/agents');
+    router.push(`/agents/${agentId}/details`);
   };
 
   if (isLoadingAgent) {
@@ -485,7 +500,9 @@ function CallPageContent() {
 export default function CallPage() {
   return (
     <AuthGuard>
-      <CallPageContent />
+      <Suspense fallback={<LoadingView message="Carregando..." />}>
+        <CallPageContent />
+      </Suspense>
     </AuthGuard>
   );
 }

@@ -328,3 +328,18 @@ export function getToken(): string | null {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem(TOKEN_KEY);
 }
+
+/**
+ * Obter nome do usuario atual (de user_scope no localStorage)
+ */
+export function getCurrentUserName(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('user_scope');
+    if (!raw) return null;
+    const scope = JSON.parse(raw) as UserScope;
+    return scope?.name ?? null;
+  } catch {
+    return null;
+  }
+}

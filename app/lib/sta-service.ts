@@ -20,6 +20,7 @@ import {
   CallContextValue,
   Agent,
   CallResult,
+  RoleplayDetail,
 } from './types/sta';
 
 import { getToken } from './auth-service';
@@ -382,6 +383,85 @@ export async function getAgent(id: number): Promise<Agent> {
   }
 
   throw new Error('Agente nao encontrado');
+}
+
+// ============ ROLEPLAY DETAIL ============
+
+export async function getRoleplayDetail(id: number): Promise<RoleplayDetail> {
+  if (MOCK_MODE) {
+    await delay(400);
+    const allAgents = [...MOCK_AGENTS, ...createdAgents];
+    const agent = allAgents.find((a) => a.id === id);
+    if (!agent) throw new Error('Roleplay nao encontrado');
+
+    const allCaseSetups = [...MOCK_CASE_SETUPS, ...createdCaseSetups];
+    const caseSetup = allCaseSetups.find((cs) => cs.context_id === agent.context_id);
+
+    if (caseSetup) {
+      return {
+        ...agent,
+        training_objective: caseSetup.training_objective,
+        persona_profile: caseSetup.persona_profile,
+        company_profile: caseSetup.company_profile,
+        salesperson_success_criteria: caseSetup.salesperson_success_criteria,
+        training_targeted_sales_skills: caseSetup.training_targeted_sales_skills,
+      };
+    }
+
+    return {
+      ...agent,
+      training_objective: '',
+      persona_profile: {
+        name: agent.persona_name,
+        age: 40,
+        gender_slug: 'other',
+        job_title: agent.persona_job_title,
+        department: '',
+        career_path: '',
+        years_in_current_position: 0,
+        previous_professional_experience: '',
+        communication_style_slug: 'formal',
+        hobbies_and_interests: '',
+        description: '',
+        point_of_view: '',
+        decision_making_role_description: '',
+        main_current_problems_frustrations_and_evidence: '',
+        main_desires: '',
+        main_objections: '',
+        main_concerns: '',
+      },
+      company_profile: {
+        name: agent.company_name,
+        industry_slug: '',
+        specialization: '',
+        location: '',
+        number_of_employees: 0,
+        annual_revenue: 0,
+        annual_revenue_unit: 'BRL',
+        strategic_focus_areas: '',
+        technology_portfolio: '',
+        financial_model: '',
+        cultural_profile: '',
+        description: '',
+      },
+      salesperson_success_criteria: [],
+      training_targeted_sales_skills: [],
+    };
+  }
+
+  // Real mode: get case setup + agent info
+  const response = await fetchWithAuth(`${STA_API_BASE}/case-setup/${id}`, { method: 'GET' });
+  const caseSetup = await handleResponse<CaseSetup>(response);
+  const agent = await getAgent(id);
+
+  return {
+    ...agent,
+    training_objective: caseSetup.training_objective,
+    persona_profile: caseSetup.persona_profile,
+    company_profile: caseSetup.company_profile,
+    salesperson_success_criteria: caseSetup.salesperson_success_criteria,
+    training_targeted_sales_skills: caseSetup.training_targeted_sales_skills,
+  };
 }
 
 // ============ CALL RESULT (sempre mockado - sem API ainda) ============

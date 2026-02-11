@@ -424,6 +424,16 @@ export const MOCK_CALL_RESULT: CallResult = {
       ],
     },
   },
+  rubric_results: [
+    { criterion: 'Permission based opener?', met: true },
+    { criterion: 'Used research on prospect?', met: true },
+    { criterion: 'Provided social proof?', met: true },
+    { criterion: 'Asked if social proof was relevant?', met: false },
+    { criterion: 'SDR asked for preconceptions of product?', met: false },
+    { criterion: 'Next steps agreed upon?', met: false },
+    { criterion: 'Follow-up meeting booked?', met: false },
+    { criterion: 'Re-confirmed that the time works for the prospect?', met: false },
+  ],
   transcript: 'Vendedor: Boa tarde, Ricardo...\nComprador: Boa tarde...',
   created_at: '2025-01-18T11:30:00Z',
 };
@@ -496,6 +506,37 @@ export const MOCK_CONVERSATION_SCRIPT: MockMessage[] = [
     content: 'Tudo bem, posso dar uma olhada. Me manda um convite para quinta de manha, pode ser?',
     delay: 3000,
   },
+];
+
+// ============ SALES SKILLS ============
+
+export const MOCK_SALES_SKILLS = [
+  { value: 'spin_selling', label: 'SPIN Selling' },
+  { value: 'objection_handling', label: 'Tratamento de Objecoes' },
+  { value: 'discovery', label: 'Discovery / Qualificacao' },
+  { value: 'closing', label: 'Tecnicas de Fechamento' },
+  { value: 'rapport_building', label: 'Construcao de Rapport' },
+  { value: 'active_listening', label: 'Escuta Ativa' },
+  { value: 'value_selling', label: 'Venda de Valor' },
+  { value: 'consultative_selling', label: 'Venda Consultiva' },
+];
+
+// ============ LOADING PHRASES ============
+
+export const LOADING_PHRASES_GENERATION = [
+  'Analisando o cenario de vendas...',
+  'Criando persona do comprador...',
+  'Definindo criterios de avaliacao...',
+  'Gerando dialogo de exemplo...',
+  'Finalizando configuracao do treinamento...',
+];
+
+export const LOADING_PHRASES_CREATION = [
+  'Preparando seu roleplay...',
+  'Configurando o agente de IA...',
+  'Salvando criterios de avaliacao...',
+  'Montando o cenario de treinamento...',
+  'Quase pronto! Finalizando detalhes...',
 ];
 
 // ============ GENERATE RESPONSE HELPERS ============
