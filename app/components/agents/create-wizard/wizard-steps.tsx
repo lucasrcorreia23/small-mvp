@@ -69,13 +69,9 @@ export function WizardSteps({ currentStep, lightLines = false }: WizardStepsProp
               </div>
             </div>
 
-            {/* Connector line - branca quando lightLines para contraste com o fundo */}
+            {/* Connector line entre as etapas - branca */}
             {!isLast && (
-              <div
-                className={`w-8 sm:w-12 h-0.5 mx-1 flex-shrink-0 rounded-full transition-colors ${
-                  lightLines ? 'bg-white' : isCompleted ? 'bg-emerald-500' : 'bg-slate-200'
-                }`}
-              />
+              <div className="w-8 sm:w-12 h-0.5 mx-1 flex-shrink-0 rounded-full bg-white border border-slate-200/80" />
             )}
           </div>
         );

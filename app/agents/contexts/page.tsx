@@ -107,8 +107,8 @@ function ContextsPageContent() {
                 </p>
               </div>
             </div>
-            <div className="order-1 sm:order-2 flex-shrink-0 px-4 py-3 rounded-sm bg-slate-700">
-              <WizardSteps currentStep="context" lightLines />
+            <div className="order-1 sm:order-2 flex-shrink-0">
+              <WizardSteps currentStep="context" />
             </div>
           </div>
 
@@ -142,7 +142,7 @@ function ContextsPageContent() {
                   onClick={() => handleContextClick(ctx)}
                 />
               ))}
-              <CreateRoleplayCard destination="create" offerId={offerId ?? undefined} />
+              <CreateRoleplayCard destination="create" offerId={offerId ?? undefined} label="Novo perfil de comprador" />
             </div>
           )}
         </div>

@@ -9,9 +9,11 @@ interface CreateRoleplayCardProps {
   destination?: 'offers' | 'create';
   /** Usado com destination='create' na página de perfis: /agents/create?offer_id=X&step=context */
   offerId?: number;
+  /** Copy do CTA (ex.: "Nova oferta", "Novo perfil", "Criar Roleplay"). */
+  label?: string;
 }
 
-export function CreateRoleplayCard({ hasOtherAgents = false, destination, offerId }: CreateRoleplayCardProps) {
+export function CreateRoleplayCard({ hasOtherAgents = false, destination, offerId, label = 'Criar Roleplay' }: CreateRoleplayCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
@@ -50,7 +52,7 @@ export function CreateRoleplayCard({ hasOtherAgents = false, destination, offerI
           />
         </svg>
       </div>
-      <span className="text-sm font-medium text-slate-600">Criar Roleplay</span>
+      <span className="text-sm font-medium text-slate-600">{label}</span>
     </button>
   );
 }

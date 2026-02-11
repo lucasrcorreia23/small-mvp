@@ -108,8 +108,8 @@ export function OfferList({ offers, isLoading, error }: OfferListProps) {
             </p>
           </div>
         </div>
-        <div className="order-1 sm:order-2 flex-shrink-0 px-4 py-3 rounded-sm bg-slate-700">
-          <WizardSteps currentStep="offer" lightLines />
+        <div className="order-1 sm:order-2 flex-shrink-0">
+          <WizardSteps currentStep="offer" />
         </div>
       </div>
 
@@ -121,7 +121,7 @@ export function OfferList({ offers, isLoading, error }: OfferListProps) {
             onClick={() => handleOfferClick(offer)}
           />
         ))}
-        <CreateRoleplayCard destination="create" />
+        <CreateRoleplayCard destination="create" label="Nova oferta" />
       </div>
     </div>
   );
