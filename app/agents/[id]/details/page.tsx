@@ -2,33 +2,23 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { AuthGuard } from '@/app/components/auth-guard';
 import { AppHeader } from '@/app/components/app-header';
 import { LoadingView } from '@/app/components/loading-view';
 import { RoleplayDetail } from '@/app/lib/types/sta';
 import { getRoleplayDetail } from '@/app/lib/sta-service';
+import { getCallContextLabel } from '@/app/lib/call-context-labels';
 
 function formatDifficulty(level: string): string {
-  if (level === 'easy') return 'Facil';
-  if (level === 'medium') return 'Medio';
-  if (level === 'hard') return 'Dificil';
+  if (level === 'easy') return 'Fácil';
+  if (level === 'medium') return 'Médio';
+  if (level === 'hard') return 'Difícil';
   return level;
 }
 
-function getCallContextLabel(slug: string): string {
-  const map: Record<string, string> = {
-    cold_call: 'Cold Call',
-    warm_outreach: 'Abordagem Morna',
-    qualification_discovery: 'Qualificacao / Discovery',
-    needs_analysis: 'Analise de Necessidades',
-    presentation_demo: 'Apresentacao / Demo',
-    proposal_review: 'Revisao de Proposta',
-    negotiation: 'Negociacao',
-    objection_handling: 'Tratamento de Objecoes',
-    closing: 'Fechamento',
-    follow_up: 'Follow Up',
-  };
-  return map[slug] || slug;
+function getPersonaImageUrl(roleplay: RoleplayDetail): string {
+  return `https://i.pravatar.cc/256?u=${roleplay.id}-${encodeURIComponent(roleplay.persona_profile.name)}`;
 }
 
 function DetailsPageContent() {
@@ -101,8 +91,8 @@ function DetailsPageContent() {
     <main className="min-h-screen relative">
       <AppHeader />
 
-      <div className="relative z-10 pt-24 pb-12 px-6">
-        <div className="max-w-6xl mx-auto">
+      <div className="relative z-10 pt-24 pb-12 px-6 min-h-[calc(100vh-6rem)]">
+        <div className="max-w-6xl mx-auto h-full">
           {/* Back button */}
           <button
             onClick={() => router.push('/agents')}
@@ -114,53 +104,92 @@ function DetailsPageContent() {
             Voltar aos Roleplays
           </button>
 
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Left Column (60%) */}
-            <div className="w-full lg:w-[60%] space-y-6">
-              <div className="card-surface p-8">
-                <h1 className="text-2xl font-semibold text-slate-800 mb-2">
-                  {roleplay.training_name}
-                </h1>
-                <p className="text-slate-500 text-sm leading-relaxed mb-6">
-                  {roleplay.training_description}
-                </p>
-                {roleplay.training_objective && (
-                  <p className="text-slate-600 text-sm mb-6">
-                    <span className="font-medium">Objetivo:</span> {roleplay.training_objective}
-                  </p>
-                )}
-                <button
-                  onClick={() => router.push(`/agents/${roleplay.id}/call?auto_start=1`)}
-                  className="btn-primary h-14 px-10 text-white font-medium text-lg transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-3"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
-                    <path fillRule="evenodd" d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z" clipRule="evenodd" />
-                  </svg>
-                  Iniciar Chamada
-                </button>
+          <div className="flex flex-col lg:flex-row gap-6 lg:items-stretch lg:min-h-[calc(100vh-12rem)]">
+            {/* Coluna esquerda: full height, fundo harmonioso com rosto e dados */}
+            <div className="w-full lg:w-[60%] lg:min-h-0 relative">
+              <div className="relative h-full min-h-[400px] lg:min-h-full rounded-sm overflow-hidden">
+                {/* Fundo sutil: avatar grande desfocado + gradiente */}
+                <div className="absolute inset-0">
+                  <div className="absolute -right-12 -top-12 w-72 h-72 rounded-full opacity-[0.08] overflow-hidden">
+                    <Image
+                      src={getPersonaImageUrl(roleplay)}
+                      alt=""
+                      fill
+                      className="object-cover scale-150"
+                      sizes="288px"
+                      unoptimized
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-slate-50/95 via-white/90 to-[#2E63CD]/5" />
+                </div>
+
+                {/* Conteúdo centralizado */}
+                <div className="relative z-10 h-full flex flex-col items-center justify-center p-8 text-center">
+                  <div className="w-full max-w-md space-y-6">
+                    <h1 className="text-2xl font-semibold text-slate-800">
+                      {roleplay.training_name}
+                    </h1>
+                    <p className="text-slate-500 text-sm leading-relaxed">
+                      {roleplay.training_description}
+                    </p>
+                    {roleplay.training_objective && (
+                      <p className="text-slate-600 text-sm">
+                        <span className="font-medium">Objetivo:</span> {roleplay.training_objective}
+                      </p>
+                    )}
+                    <button
+                      onClick={() => router.push(`/agents/${roleplay.id}/call?auto_start=1`)}
+                      className="btn-primary h-14 px-10 text-white font-medium text-lg transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-3 mx-auto"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                        <path fillRule="evenodd" d="M1.5 4.5a3 3 0 013-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 01-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 006.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 011.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 01-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z" clipRule="evenodd" />
+                      </svg>
+                      Iniciar Chamada
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Right Column (40%) */}
+            {/* Coluna direita: Persona + Contexto + Critérios */}
             <div className="w-full lg:w-[40%] space-y-4">
-              {/* Persona */}
-              <div className="card-surface p-5 space-y-3">
-                <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Persona</h3>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#2E63CD] flex items-center justify-center text-white font-semibold text-sm shrink-0">
-                    {roleplay.persona_profile.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <div className="font-medium text-slate-800">{roleplay.persona_profile.name}</div>
-                    <div className="text-sm text-slate-500">{roleplay.persona_profile.job_title}</div>
-                  </div>
+              {/* Card Persona - com rosto e dados integrados */}
+              <div className="card-surface p-5 space-y-3 relative overflow-hidden">
+                <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full opacity-[0.06] overflow-hidden">
+                  <Image
+                    src={getPersonaImageUrl(roleplay)}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="96px"
+                    unoptimized
+                  />
                 </div>
-                <div className="text-sm text-slate-600">
-                  <span className="text-slate-500">Empresa:</span> {roleplay.company_profile.name}
+                <div className="relative z-10">
+                  <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide mb-3">Persona</h3>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-[#2E63CD]">
+                      <Image
+                        src={getPersonaImageUrl(roleplay)}
+                        alt={roleplay.persona_profile.name}
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
+                    </div>
+                    <div>
+                      <div className="font-medium text-slate-800">{roleplay.persona_profile.name}</div>
+                      <div className="text-sm text-slate-500">{roleplay.persona_profile.job_title}</div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-slate-600 mt-2">
+                    <span className="text-slate-500">Empresa:</span> {roleplay.company_profile.name}
+                  </div>
                 </div>
               </div>
 
-              {/* Context */}
+              {/* Contexto */}
               <div className="card-surface p-5 space-y-2">
                 <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Contexto</h3>
                 <div className="text-sm text-slate-600">
@@ -171,10 +200,10 @@ function DetailsPageContent() {
                 </div>
               </div>
 
-              {/* Criteria */}
+              {/* Critérios */}
               {roleplay.salesperson_success_criteria.length > 0 && (
                 <div className="card-surface p-5 space-y-3">
-                  <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Criterios de Avaliacao</h3>
+                  <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Critérios de Avaliação</h3>
                   <ul className="space-y-1">
                     {roleplay.salesperson_success_criteria.map((c, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-slate-700">
@@ -186,7 +215,7 @@ function DetailsPageContent() {
                 </div>
               )}
 
-              {/* Skills */}
+              {/* Habilidades */}
               {roleplay.training_targeted_sales_skills.length > 0 && (
                 <div className="card-surface p-5 space-y-3">
                   <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">Habilidades</h3>

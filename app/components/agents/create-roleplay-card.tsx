@@ -36,7 +36,7 @@ export function CreateRoleplayCard({ hasOtherAgents = false, destination, offerI
     <button
       type="button"
       onClick={handleClick}
-      className="w-full text-left card-surface p-6 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 relative hover:brightness-[1.02] transition-all border-2 border-dashed border-slate-300 hover:border-[#2E63CD]/50 flex flex-col items-center justify-center min-h-[200px] gap-3"
+      className="w-full text-left card-surface p-5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 relative hover:brightness-[1.02] transition-all border-2 border-dashed border-slate-300 hover:border-[#2E63CD]/50 flex flex-col items-center justify-center min-h-[220px] gap-3"
     >
       <div className="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100">
         <svg

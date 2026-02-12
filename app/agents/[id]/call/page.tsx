@@ -144,7 +144,7 @@ function CallPageContent() {
 
   const stopRealCall = useCallback(() => {
     conversation.endSession().catch(console.warn);
-    router.push(`/agents/${agentId}/results`);
+    router.push(`/agents/${agentId}/loading`);
   }, [conversation, agentId, router]);
 
   // Load agent data
@@ -253,7 +253,7 @@ function CallPageContent() {
       setMockState('ended');
       setCurrentSpeaker(null);
       mockTimerRef.current = setTimeout(() => {
-        router.push(`/agents/${agentId}/results`);
+        router.push(`/agents/${agentId}/loading`);
       }, 1500);
       return;
     }
@@ -306,7 +306,7 @@ function CallPageContent() {
     setHasStarted(false);
     setMockState('idle');
     setCurrentSpeaker(null);
-    router.push(`/agents/${agentId}/results`);
+    router.push(`/agents/${agentId}/loading`);
   }, [agentId, router]);
 
   // Auto-start call when coming from details (auto_start=1)

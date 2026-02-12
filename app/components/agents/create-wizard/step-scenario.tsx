@@ -137,13 +137,15 @@ export function StepScenario({ onComplete, onBack, setFooterContent }: StepScena
         {/* Divider */}
         <div className="hidden lg:block w-px bg-slate-200 flex-shrink-0 self-stretch min-h-[200px]" aria-hidden />
 
-        {/* Right Column (60%): Form fields without labels */}
+        {/* Right Column (60%): Form fields with labels */}
         <div className="w-full lg:w-[60%] lg:pl-8">
           <div className="space-y-5">
-            <Select value={callContextSlug || undefined} onValueChange={setCallContextSlug}>
-              <SelectTrigger>
-                <SelectValue placeholder="Contexto da chamada" />
-              </SelectTrigger>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Contexto da chamada</label>
+              <Select value={callContextSlug || undefined} onValueChange={setCallContextSlug}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o contexto" />
+                </SelectTrigger>
               <SelectContent>
                 {callContextValues.map((ctx) => (
                   <SelectItem key={ctx.slug} value={ctx.slug}>
@@ -151,12 +153,15 @@ export function StepScenario({ onComplete, onBack, setFooterContent }: StepScena
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
+              </Select>
+            </div>
 
-            <Select value={difficultyLevel} onValueChange={setDifficultyLevel}>
-              <SelectTrigger>
-                <SelectValue placeholder="Nivel de dificuldade" />
-              </SelectTrigger>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Nivel de dificuldade</label>
+              <Select value={difficultyLevel} onValueChange={setDifficultyLevel}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o nivel" />
+                </SelectTrigger>
               <SelectContent>
                 {difficultyLevels.map((level) => (
                   <SelectItem key={level.value} value={level.value}>
@@ -164,12 +169,15 @@ export function StepScenario({ onComplete, onBack, setFooterContent }: StepScena
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
+              </Select>
+            </div>
 
-            <Select value={salesSkill || undefined} onValueChange={setSalesSkill}>
-              <SelectTrigger>
-                <SelectValue placeholder="Habilidade de venda para praticar" />
-              </SelectTrigger>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Habilidade de venda para praticar</label>
+              <Select value={salesSkill || undefined} onValueChange={setSalesSkill}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a habilidade" />
+                </SelectTrigger>
               <SelectContent>
                 {MOCK_SALES_SKILLS.map((skill) => (
                   <SelectItem key={skill.value} value={skill.value}>
@@ -177,15 +185,20 @@ export function StepScenario({ onComplete, onBack, setFooterContent }: StepScena
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
+              </Select>
+            </div>
 
-            <textarea
-              value={additionalInstructions}
-              onChange={(e) => setAdditionalInstructions(e.target.value)}
-              placeholder="Ex: Quero que o comprador seja resistente a mudancas e fale sobre orcamento limitado no inicio da conversa..."
-              rows={8}
-              className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
-            />
+            <div className="flex flex-col gap-2">
+              <label htmlFor="scenario-additional-instructions" className="text-sm font-medium text-slate-700">Instrucoes adicionais</label>
+              <textarea
+                id="scenario-additional-instructions"
+                value={additionalInstructions}
+                onChange={(e) => setAdditionalInstructions(e.target.value)}
+                placeholder="Ex: Quero que o comprador seja resistente a mudancas e fale sobre orcamento limitado no inicio da conversa..."
+                rows={8}
+                className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
+              />
+            </div>
           </div>
         </div>
       </div>

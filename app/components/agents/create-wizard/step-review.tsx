@@ -153,30 +153,42 @@ export function StepReview({ generatedData, onComplete, onBack, setFooterContent
               )}
             </label>
             <div className="flex-1 space-y-2">
-              <input
-                type="text"
-                value={personaName}
-                onChange={(e) => setPersonaName(e.target.value)}
-                placeholder="Nome da persona"
-                className="w-full px-3 py-2 rounded-sm border border-slate-200 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={personaName}
+                  onChange={(e) => setPersonaName(e.target.value)}
+                  className="w-full px-3 py-2 pr-32 rounded-sm border border-slate-200 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 pointer-events-none">
+                  Nome da persona
+                </span>
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input
-              type="text"
-              value={personaCompany}
-              onChange={(e) => setPersonaCompany(e.target.value)}
-              placeholder="Empresa"
-              className="w-full px-3 py-2 rounded-sm border border-slate-200 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
-            />
-            <input
-              type="text"
-              value={personaStyle}
-              onChange={(e) => setPersonaStyle(e.target.value)}
-              placeholder="Estilo de comunicacao"
-              className="w-full px-3 py-2 rounded-sm border border-slate-200 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={personaCompany}
+                onChange={(e) => setPersonaCompany(e.target.value)}
+                className="w-full px-3 py-2 pr-20 rounded-sm border border-slate-200 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 pointer-events-none">
+                Empresa
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                type="text"
+                value={personaStyle}
+                onChange={(e) => setPersonaStyle(e.target.value)}
+                className="w-full px-3 py-2 pr-40 rounded-sm border border-slate-200 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 pointer-events-none">
+                Estilo de comunicacao
+              </span>
+            </div>
           </div>
         </div>
       </div>

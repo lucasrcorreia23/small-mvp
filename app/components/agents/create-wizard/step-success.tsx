@@ -2,27 +2,45 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { CaseSetupGenerateResponse } from '@/app/lib/types/sta';
+import { getCallContextLabel } from '@/app/lib/call-context-labels';
 
-function formatCommunicationStyle(slug: string): string {
-  const map: Record<string, string> = {
-    formal: 'Formal',
-    casual: 'Casual',
-    assertive: 'Assertivo',
-    consultative: 'Consultivo',
-    other: 'Outro',
-  };
-  return map[slug] || slug;
+function formatDifficulty(level: string): string {
+  if (level === 'easy') return 'Fácil';
+  if (level === 'medium') return 'Médio';
+  if (level === 'hard') return 'Difícil';
+  return level;
 }
 
-interface StepSuccessProps {
-  agentId: number;
-  trainingName: string;
-  personaName: string;
-  communicationStyle?: string;
-  scenarioLabel?: string;
+function getDifficultyStyles(level: string): { bg: string; text: string } {
+  if (level === 'easy') return { bg: 'bg-emerald-50', text: 'text-emerald-700' };
+  if (level === 'medium') return { bg: 'bg-amber-50', text: 'text-amber-700' };
+  if (level === 'hard') return { bg: 'bg-red-50', text: 'text-red-700' };
+  return { bg: 'bg-slate-100', text: 'text-slate-600' };
 }
 
-/** Confetti simplificado: menos peças, só animação de queda, sem shake infinito */
+function cleanDescription(text: string): string {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/\bsimula[cç][ãa]o\b/gi, '')
+    .replace(/\bsimulacao\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getPersonaImageUrl(agentId: number, personaName: string): string {
+  return `https://i.pravatar.cc/256?u=${agentId}-${encodeURIComponent(personaName)}`;
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+/** Confetti simplificado */
 function ConfettiPiece({ index }: { index: number }) {
   const colors = ['#2E63CD', '#3A71DB', '#60A5FA', '#93C5FD'];
   const color = colors[index % colors.length];
@@ -45,31 +63,12 @@ function ConfettiPiece({ index }: { index: number }) {
   );
 }
 
-/** Ícone de diamante em outline (estilo bonitinho) */
-function DiamondOutlineIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 56 56"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M28 4L52 22L28 52L4 22L28 4Z" />
-    </svg>
-  );
+interface StepSuccessProps {
+  agentId: number;
+  generatedData: CaseSetupGenerateResponse;
 }
 
-export function StepSuccess({
-  agentId,
-  trainingName,
-  personaName,
-  communicationStyle = 'formal',
-  scenarioLabel = '',
-}: StepSuccessProps) {
+export function StepSuccess({ agentId, generatedData }: StepSuccessProps) {
   const router = useRouter();
   const [showConfetti, setShowConfetti] = useState(true);
 
@@ -78,12 +77,12 @@ export function StepSuccess({
     return () => clearTimeout(timer);
   }, []);
 
-  const styleLabel = formatCommunicationStyle(communicationStyle);
-  const scenarioText = scenarioLabel ? `${scenarioLabel} · ${styleLabel}` : styleLabel;
+  const persona = generatedData.persona_profile;
+  const contextText = cleanDescription(generatedData.training_description);
+  const difficultyStyles = getDifficultyStyles(generatedData.scenario_difficulty_level);
 
   return (
-    <div className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
-      {/* Confetti: contido e com menos peças para evitar bug */}
+    <div className="relative min-h-[60vh] flex flex-col items-center justify-center overflow-hidden">
       {showConfetti && (
         <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
           {Array.from({ length: 12 }).map((_, i) => (
@@ -92,39 +91,87 @@ export function StepSuccess({
         </div>
       )}
 
-      <div className="relative z-20 text-center space-y-8 max-w-md mx-auto">
-        {/* Ícone: diamante em outline (substitui o check verde) */}
+      <div className="relative z-20 w-full max-w-md mx-auto space-y-6">
+        {/* Ícone de sucesso */}
         <div className="flex justify-center">
-          <div className="w-20 h-20 rounded-full bg-[#2E63CD]/10 flex items-center justify-center border-2 border-[#2E63CD]/30">
-            <DiamondOutlineIcon className="w-10 h-10 text-[#2E63CD]" />
+          <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center ring-4 ring-emerald-50">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-10 h-10 text-emerald-600"
+            >
+              <path
+                fillRule="evenodd"
+                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                clipRule="evenodd"
+              />
+            </svg>
           </div>
         </div>
 
-        {/* Message */}
-        <div className="space-y-2">
+        {/* Mensagem */}
+        <div className="text-center space-y-1">
           <h2 className="text-2xl font-semibold text-slate-800">Roleplay criado com sucesso!</h2>
-          <p className="text-slate-500">Seu treinamento esta pronto para ser praticado.</p>
+          <p className="text-slate-500 text-sm">Seu treinamento está pronto para ser praticado.</p>
         </div>
 
-        {/* Card: nome principal, cenário com estilo de comunicação, avatar/rosto com comportamento */}
-        <div className="card-surface p-5 text-left space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-[#2E63CD] flex items-center justify-center text-white font-semibold text-lg shrink-0">
-              {personaName.charAt(0).toUpperCase()}
+        {/* Card: layout exato do AgentCard */}
+        <div className="card-surface p-5 flex flex-col min-h-[220px]">
+          <div className="flex flex-col flex-1 min-w-0">
+            <div className="flex items-start gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-slate-200">
+                <Image
+                  src={getPersonaImageUrl(agentId, persona.name)}
+                  alt={persona.name}
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-cover"
+                  unoptimized
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-semibold text-slate-800 truncate">
+                  {persona.name}
+                </h3>
+                <p className="text-sm text-slate-500">{persona.job_title}</p>
+                <div className="flex flex-nowrap items-center gap-1.5 mt-2">
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded shrink-0 ${difficultyStyles.bg} ${difficultyStyles.text}`}>
+                    {formatDifficulty(generatedData.scenario_difficulty_level)}
+                  </span>
+                  {generatedData.call_context_type_slug && (
+                    <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded truncate min-w-0">
+                      {getCallContextLabel(generatedData.call_context_type_slug)}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-slate-800 truncate">{trainingName}</h3>
-              <p className="text-sm text-slate-500">Cenario: {scenarioText}</p>
-              <p className="text-xs text-slate-400 mt-0.5">Estilo: {styleLabel}</p>
+
+            {contextText && (
+              <div className="mt-3 flex-1 min-h-0">
+                <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed">
+                  {contextText}
+                </p>
+              </div>
+            )}
+
+            <div className="mt-4 pt-3 border-t border-slate-100 -mx-5 px-5">
+              <button
+                type="button"
+                onClick={() => router.push(`/agents/${agentId}/details`)}
+                className="w-full btn-primary h-10 text-white font-medium flex items-center justify-center"
+              >
+                Praticar
+              </button>
             </div>
           </div>
-          <p className="text-sm text-slate-600">Persona: {personaName}</p>
         </div>
 
-        {/* Actions */}
+        {/* Ações */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
-            onClick={() => router.push(`/agents/${agentId}/details`)}
+            onClick={() => router.push(`/agents/${agentId}/call?auto_start=1`)}
             className="btn-primary h-12 px-8 text-white font-medium transition-all duration-200 active:scale-[0.98]"
           >
             Praticar Agora
@@ -133,7 +180,7 @@ export function StepSuccess({
             onClick={() => router.push('/agents')}
             className="btn-secondary h-12 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all duration-200"
           >
-            Voltar ao Inicio
+            Voltar ao Início
           </button>
         </div>
       </div>

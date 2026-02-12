@@ -302,10 +302,7 @@ export function WizardContainer() {
         <div className="card-surface p-8">
           <StepSuccess
             agentId={createdAgentId}
-            trainingName={generatedData.training_name}
-            personaName={generatedData.persona_profile.name}
-            communicationStyle={generatedData.persona_profile.communication_style_slug}
-            scenarioLabel={scenarioLabel}
+            generatedData={generatedData}
           />
         </div>
       </div>

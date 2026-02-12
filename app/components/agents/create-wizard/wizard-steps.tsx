@@ -27,25 +27,8 @@ export function WizardSteps({ currentStep, lightLines = false }: WizardStepsProp
 
         return (
           <div key={step.key} className="flex items-center">
-            {/* Label à esquerda + círculo */}
+            {/* Círculo + label à direita */}
             <div className="flex items-center gap-2">
-              <span
-                className={`text-sm font-medium transition-colors ${
-                  lightLines
-                    ? isActive
-                      ? 'text-white'
-                      : isCompleted
-                      ? 'text-white/90'
-                      : 'text-white/60'
-                    : isActive
-                    ? 'text-slate-800'
-                    : isCompleted
-                    ? 'text-slate-600'
-                    : 'text-slate-400'
-                }`}
-              >
-                {step.label}
-              </span>
               <div
                 className={`w-9 h-9 flex items-center justify-center rounded-full text-sm font-semibold border-2 transition-all flex-shrink-0 ${
                   isActive
@@ -67,6 +50,23 @@ export function WizardSteps({ currentStep, lightLines = false }: WizardStepsProp
                   step.number
                 )}
               </div>
+              <span
+                className={`text-sm font-medium transition-colors ${
+                  lightLines
+                    ? isActive
+                      ? 'text-white'
+                      : isCompleted
+                      ? 'text-white/90'
+                      : 'text-white/60'
+                    : isActive
+                    ? 'text-slate-800'
+                    : isCompleted
+                    ? 'text-slate-600'
+                    : 'text-slate-400'
+                }`}
+              >
+                {step.label}
+              </span>
             </div>
 
             {/* Connector line entre as etapas - branca */}

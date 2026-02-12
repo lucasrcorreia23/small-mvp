@@ -14,7 +14,7 @@ export function RubricChecklist({ items }: RubricChecklistProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-slate-800">Scorecard</h3>
+        <h3 className="text-lg font-semibold text-slate-800">Critérios</h3>
         <span className="text-sm text-slate-500">
           {metCount}/{items.length} criterios atendidos
         </span>
