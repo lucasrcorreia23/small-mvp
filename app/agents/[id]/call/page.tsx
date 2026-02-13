@@ -13,6 +13,7 @@ import { Agent } from '@/app/lib/types/sta';
 import { getAgent } from '@/app/lib/sta-service';
 import { getToken, logout as authLogout } from '@/app/lib/auth-service';
 import { MOCK_CONVERSATION_SCRIPT } from '@/app/lib/mock-data';
+import { getPersonaAvatarUrl } from '@/app/lib/persona-avatar';
 
 const MOCK_CALL = process.env.NEXT_PUBLIC_USE_MOCK_AGENT_LINK === 'true';
 
@@ -46,10 +47,6 @@ function mapFrequencyDataToBands(
   return bands;
 }
 
-function getPersonaImageUrl(agent: Agent): string {
-  return `https://i.pravatar.cc/256?u=${agent.id}-${encodeURIComponent(agent.persona_name)}`;
-}
-
 function formatContextSlug(slug: string): string {
   return slug.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
@@ -81,6 +78,7 @@ function CallPageContent() {
 
   // Mock call state
   const [mockState, setMockState] = useState<'idle' | 'connecting' | 'playing' | 'waiting' | 'ended'>('idle');
+  const [isNavigatingAway, setIsNavigatingAway] = useState(false);
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
   const [currentSpeaker, setCurrentSpeaker] = useState<string | null>(null);
   const mockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -143,6 +141,7 @@ function CallPageContent() {
   }, [getSignedUrl, conversation]);
 
   const stopRealCall = useCallback(() => {
+    setIsNavigatingAway(true);
     conversation.endSession().catch(console.warn);
     router.push(`/agents/${agentId}/loading`);
   }, [conversation, agentId, router]);
@@ -303,9 +302,7 @@ function CallPageContent() {
     if (mockTimerRef.current) {
       clearTimeout(mockTimerRef.current);
     }
-    setHasStarted(false);
-    setMockState('idle');
-    setCurrentSpeaker(null);
+    setIsNavigatingAway(true);
     router.push(`/agents/${agentId}/loading`);
   }, [agentId, router]);
 
@@ -376,6 +373,17 @@ function CallPageContent() {
     <main className="min-h-screen relative">
       <AppHeader />
       <div className="relative z-10 pt-24 min-h-screen flex items-center justify-center p-6">
+        {isNavigatingAway && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm"
+            aria-label="Encerrando chamada..."
+          >
+            <div className="flex flex-col items-center gap-4">
+              <div className="h-10 w-10 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <p className="text-sm font-medium text-white">Encerrando chamada...</p>
+            </div>
+          </div>
+        )}
         <div className="w-full max-w-md mx-auto">
           <div className="card-surface px-8 py-8 shadow-[0_20px_60px_rgba(15,23,42,0.12)]">
             {/* Dados do agente: avatar, nome e cargo centralizados (igual feedback) */}
@@ -383,7 +391,7 @@ function CallPageContent() {
               <div className="flex flex-col items-center text-center mb-8">
                 <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 bg-slate-200 ring-2 ring-slate-200">
                   <Image
-                    src={getPersonaImageUrl(agent)}
+                    src={getPersonaAvatarUrl(agent.id, agent.persona_name)}
                     alt={agent.persona_name}
                     width={64}
                     height={64}

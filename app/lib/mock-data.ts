@@ -380,6 +380,16 @@ export const MOCK_CALL_RESULT: CallResult = {
     implication: 62,
     needPayoff: 71,
     overallScore: 74,
+    talkListenRatio: 58,
+    fillerWords: 8,
+    talkSpeed: 142,
+    longestMonologue: 45,
+    callHistory: [
+      { date: '2025-01-15', score: 62 },
+      { date: '2025-01-16', score: 68 },
+      { date: '2025-01-17', score: 71 },
+      { date: '2025-01-18', score: 74 },
+    ],
     feedback: 'Voce demonstrou boa capacidade de identificar problemas do cliente e fez perguntas de situacao relevantes. Continue praticando perguntas de implicacao para aumentar a urgencia da solucao e fortalecer o compromisso do prospect.',
     detailedFeedback: {
       strengths: [
@@ -423,6 +433,45 @@ export const MOCK_CALL_RESULT: CallResult = {
         },
       ],
     },
+  },
+  objections: {
+    totalCount: 4,
+    treatmentRate: 75,
+    treatedCount: 3,
+    untreatedCount: 1,
+    quality: 'Bom',
+    details: [
+      {
+        type: 'Preço',
+        treated: true,
+        clientObjection: 'O valor está acima do nosso orçamento anual.',
+        yourResponse: 'Entendo. Que tal dividirmos em fases menores? A primeira fase pode caber no orçamento atual.',
+        platformFeedback: 'Boa técnica de isolamento. Poderia ter explorado o ROI antes de propor alternativa.',
+        techniqueUsed: 'Isolamento',
+      },
+      {
+        type: 'Timing',
+        treated: true,
+        clientObjection: 'Agora não é o momento ideal. Talvez no próximo trimestre.',
+        yourResponse: 'O que mudaria no próximo trimestre que facilitaria a decisão?',
+        platformFeedback: 'Excelente pergunta de descoberta. Permitiu identificar a real objeção.',
+        techniqueUsed: 'Descoberta',
+      },
+      {
+        type: 'Autoridade',
+        treated: true,
+        clientObjection: 'Preciso falar com o board antes de aprovar.',
+        yourResponse: 'Quais critérios o board costuma usar para avaliar investimentos assim?',
+        platformFeedback: 'Boa abordagem para alinhar expectativas e preparar o prospect para a reunião.',
+      },
+      {
+        type: 'Produto',
+        treated: false,
+        clientObjection: 'Não tenho certeza se a integração com nosso ERP funcionaria.',
+        yourResponse: 'Temos integração com os principais ERPs. Qual vocês usam?',
+        platformFeedback: 'Perguntou mas não esperou a resposta no fluxo. Seguiu para outro tópico - objeção não tratada.',
+      },
+    ],
   },
   rubric_results: [
     { criterion: 'Permission based opener?', met: true },

@@ -19,14 +19,14 @@ export function WizardSteps({ currentStep, lightLines = false }: WizardStepsProp
   const currentIndex = steps.findIndex((s) => s.key === currentStep);
 
   return (
-    <div className="flex items-center gap-0">
+    <div className="flex items-center gap-2">
       {steps.map((step, index) => {
         const isActive = step.key === currentStep;
         const isCompleted = index < currentIndex;
         const isLast = index === steps.length - 1;
 
         return (
-          <div key={step.key} className="flex items-center">
+          <div key={step.key} className="flex items-center gap-2">
             {/* Círculo + label à direita */}
             <div className="flex items-center gap-2">
               <div

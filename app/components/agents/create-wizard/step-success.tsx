@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { CaseSetupGenerateResponse } from '@/app/lib/types/sta';
 import { getCallContextLabel } from '@/app/lib/call-context-labels';
+import { getPersonaAvatarUrl } from '@/app/lib/persona-avatar';
 
 function formatDifficulty(level: string): string {
   if (level === 'easy') return 'Fácil';
@@ -27,17 +28,6 @@ function cleanDescription(text: string): string {
     .replace(/\bsimulacao\b/gi, '')
     .replace(/\s+/g, ' ')
     .trim();
-}
-
-function getPersonaImageUrl(agentId: number, personaName: string): string {
-  return `https://i.pravatar.cc/256?u=${agentId}-${encodeURIComponent(personaName)}`;
-}
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '?';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 /** Confetti simplificado */
@@ -71,6 +61,7 @@ interface StepSuccessProps {
 export function StepSuccess({ agentId, generatedData }: StepSuccessProps) {
   const router = useRouter();
   const [showConfetti, setShowConfetti] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowConfetti(false), 2500);
@@ -122,7 +113,7 @@ export function StepSuccess({ agentId, generatedData }: StepSuccessProps) {
             <div className="flex items-start gap-3">
               <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-slate-200">
                 <Image
-                  src={getPersonaImageUrl(agentId, persona.name)}
+                  src={getPersonaAvatarUrl(agentId, persona.name)}
                   alt={persona.name}
                   width={48}
                   height={48}
@@ -168,19 +159,26 @@ export function StepSuccess({ agentId, generatedData }: StepSuccessProps) {
           </div>
         </div>
 
-        {/* Ações */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        {/* Ações: Voltar ao início (terciário) | Compartilhar (secundário) */}
+        <div className="flex flex-row items-center justify-between gap-4">
           <button
-            onClick={() => router.push(`/agents/${agentId}/call?auto_start=1`)}
-            className="btn-primary h-12 px-8 text-white font-medium transition-all duration-200 active:scale-[0.98]"
+            type="button"
+            onClick={() => router.push('/agents')}
+            className="btn-tertiary text-sm font-medium"
           >
-            Praticar Agora
+            Voltar ao início
           </button>
           <button
-            onClick={() => router.push('/agents')}
-            className="btn-secondary h-12 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all duration-200"
+            type="button"
+            onClick={async () => {
+              const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/agents/${agentId}/details`;
+              await navigator.clipboard.writeText(url);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+            className="btn-secondary h-10 px-6 text-slate-700 font-medium transition-all duration-200 active:scale-[0.98]"
           >
-            Voltar ao Início
+            {copied ? 'Copiado!' : 'Compartilhar'}
           </button>
         </div>
       </div>

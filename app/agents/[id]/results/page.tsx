@@ -1,23 +1,26 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { AuthGuard } from '@/app/components/auth-guard';
 import { AppHeader } from '@/app/components/app-header';
 import { LoadingView } from '@/app/components/loading-view';
 import { FeedbackTabs } from '@/app/components/results/feedback-tabs';
 import { CallResult, Agent, RoleplayDetail } from '@/app/lib/types/sta';
-import { getAgent, getCallResult, getRoleplayDetail } from '@/app/lib/sta-service';
+import { getAgent, getCallResult, getRoleplayDetail, listCallResults } from '@/app/lib/sta-service';
 import { getCurrentUserName } from '@/app/lib/auth-service';
 
 function ResultsPageContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const agentId = Number(params.id);
+  const sessionId = searchParams.get('session');
 
   const [agent, setAgent] = useState<Agent | null>(null);
   const [callResult, setCallResult] = useState<CallResult | null>(null);
   const [roleplayDetail, setRoleplayDetail] = useState<RoleplayDetail | null>(null);
+  const [sessions, setSessions] = useState<CallResult[]>([]);
   const [userName, setUserName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,14 +31,16 @@ function ResultsPageContent() {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const [agentData, resultData, roleplayData] = await Promise.all([
+        const [agentData, resultData, roleplayData, sessionsData] = await Promise.all([
           getAgent(agentId),
           getCallResult(agentId),
           getRoleplayDetail(agentId),
+          listCallResults(agentId),
         ]);
         setAgent(agentData);
         setCallResult(resultData);
         setRoleplayDetail(roleplayData);
+        setSessions(sessionsData);
         setUserName(getCurrentUserName());
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
@@ -51,11 +56,15 @@ function ResultsPageContent() {
   const handleVoltarAoInicio = () => router.push('/agents');
   const handleTentarNovamente = () => router.push(`/agents/${agentId}/call`);
 
+  const displayResult = sessionId && sessions.length
+    ? sessions.find((s) => s.id === sessionId) ?? callResult
+    : callResult;
+
   if (isLoading) {
     return <LoadingView message="Carregando resultados..." />;
   }
 
-  if (error || !agent || !callResult) {
+  if (error || !agent || !callResult || !displayResult) {
     return (
       <main className="min-h-screen relative">
         <AppHeader />
@@ -80,13 +89,14 @@ function ResultsPageContent() {
     <main className="min-h-screen relative flex flex-col">
       <AppHeader />
 
-      <div className="relative z-10 pt-24 pb-12 px-6 flex justify-center bg-white">
-        <div className="w-full max-w-6xl mx-auto bg-white">
+      <div className="relative z-10 pt-24 pb-12 px-6">
+        <div className="max-w-6xl mx-auto">
           <FeedbackTabs
             agent={agent}
-            callResult={callResult}
+            callResult={displayResult}
             roleplayDetail={roleplayDetail}
             userName={userName}
+            sessions={sessions}
             onVoltarAoInicio={handleVoltarAoInicio}
             onTentarNovamente={handleTentarNovamente}
           />

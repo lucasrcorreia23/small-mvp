@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CallResult, Agent, RoleplayDetail, RubricResult } from '@/app/lib/types/sta';
 import { RubricChecklist } from './rubric-checklist';
-import { SpinMetricsDisplay } from './spin-metrics';
+import { AnalyticsDashboard } from './analytics-dashboard';
+import { ObjectionsDetail } from './objections-detail';
+import { SessionsList } from './sessions-list';
 
 function formatCommunicationStyle(slug: string): string {
   const map: Record<string, string> = {
@@ -39,6 +41,7 @@ interface FeedbackTabsProps {
   callResult: CallResult;
   roleplayDetail: RoleplayDetail | null;
   userName: string | null;
+  sessions: CallResult[];
   onVoltarAoInicio: () => void;
   onTentarNovamente: () => void;
 }
@@ -48,6 +51,7 @@ export function FeedbackTabs({
   callResult,
   roleplayDetail,
   userName,
+  sessions,
   onVoltarAoInicio,
   onTentarNovamente,
 }: FeedbackTabsProps) {
@@ -67,7 +71,7 @@ export function FeedbackTabs({
   const tabs: { id: TabId; label: string }[] = [
     { id: 'feedback', label: 'Feedback' },
     { id: 'analytics', label: 'Métricas' },
-    { id: 'ranking', label: 'Ranking' },
+    { id: 'ranking', label: 'Sessões' },
     { id: 'objections', label: 'Objeções' },
   ];
 
@@ -76,9 +80,9 @@ export function FeedbackTabs({
     score < 40 ? 'text-red-600' : score <= 70 ? 'text-amber-600' : 'text-emerald-600';
 
   return (
-    <div className="flex flex-col bg-white">
-      {/* Header: info + CTAs na mesma linha */}
-      <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200">
+    <>
+      {/* Header: fora do container (info + CTAs) */}
+      <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-4 mb-6">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-600">
           {userName && (
             <span className="flex items-center gap-1.5">
@@ -88,8 +92,8 @@ export function FeedbackTabs({
               Rep: {userName}
             </span>
           )}
-          <span className="text-slate-300">|</span>
-          <span className="flex items-center gap-1.5">
+         
+          <span className="ml-2 flex items-center gap-1.5">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 text-slate-400">
               <path d="M1 8.25a1.25 1.25 0 112.5 0v7.5a1.25 1.25 0 11-2.5 0v-7.5zM11 3V1.7c0-.268.14-.526.395-.607A2 2 0 0114 3c0 .995-.182 1.948-.514 2.826-.204.54.166 1.174.744 1.174h2.52c1.243 0 2.261 1.01 2.146 2.247a23.864 23.864 0 01-1.341 5.974C17.153 16.323 16.072 17 14.9 17h-3.192a3 3 0 01-1.341-.317l-2.734-1.366A3 3 0 006.292 15H5V8h.963c.685 0 1.258-.483 1.612-1.068a4.011 4.011 0 012.166-1.73c.432-.143.853-.386 1.011-.814.16-.432.248-.9.248-1.388z" />
             </svg>
@@ -135,8 +139,10 @@ export function FeedbackTabs({
         </div>
       </div>
 
+      {/* Container: tabs + conteúdo */}
+      <div className="card-surface px-6 pb-6 pt-3 shadow-[0_20px_60px_rgba(15,23,42,0.08)] flex flex-col">
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-slate-200 mt-2 flex-shrink-0">
+      <div className="flex gap-1 border-b border-slate-200 flex-shrink-0">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -156,71 +162,38 @@ export function FeedbackTabs({
       {/* Tab content */}
       <div className="flex-1 overflow-auto pt-6">
         {activeTab === 'feedback' && (
-          <div className="space-y-6">
-            {/* Pontuação + descrição na horizontal */}
-            <div className="flex flex-wrap items-center gap-6 p-6 bg-slate-50 rounded-sm border border-slate-200/80">
-              <div className={`text-4xl font-bold ${scoreColorClass}`}>
-                {score}
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Esquerda: score + feedback */}
+            <div className="card-surface p-16 flex flex-col gap-4 justify-center
+            items-center mx-auto
+            text-center">
+              <div className={`text-7xl font-bold ${scoreColorClass}`}>{score}</div>
               {callResult.spin_metrics.feedback && (
-                <p className="text-sm text-slate-700 flex-1 min-w-[200px]">
+                <p className="text-sm text-slate-700 leading-relaxed">
                   {callResult.spin_metrics.feedback}
                 </p>
               )}
             </div>
-            <RubricChecklist items={rubricResults} />
+            {/* Direita: critérios */}
+            <div>
+              <RubricChecklist items={rubricResults} />
+            </div>
           </div>
         )}
 
         {activeTab === 'analytics' && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-slate-800">Métricas da chamada</h3>
-            <SpinMetricsDisplay metrics={callResult.spin_metrics} />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-              <div className="card-surface p-4">
-                <p className="text-sm text-slate-500">Tempo de fala vs escuta</p>
-                <p className="text-2xl font-semibold text-slate-700 mt-1">—</p>
-                <p className="text-xs text-slate-400 mt-1">Em breve</p>
-              </div>
-              <div className="card-surface p-4">
-                <p className="text-sm text-slate-500">Análise de sentimento</p>
-                <p className="text-2xl font-semibold text-slate-700 mt-1">—</p>
-                <p className="text-xs text-slate-400 mt-1">Em breve</p>
-              </div>
-            </div>
-          </div>
+          <AnalyticsDashboard metrics={callResult.spin_metrics} />
         )}
 
         {activeTab === 'ranking' && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-slate-800">Ranking</h3>
-            <div className="card-surface p-6 text-center">
-              <p className="text-slate-500">Comparação com outros usuários</p>
-              <p className="text-slate-400 text-sm mt-2">Em breve</p>
-            </div>
-          </div>
+          <SessionsList agentId={agent.id} sessions={sessions} />
         )}
 
         {activeTab === 'objections' && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-slate-800">Objeções</h3>
-            {callResult.spin_metrics.detailedFeedback?.improvements?.length ? (
-              <ul className="space-y-2">
-                {callResult.spin_metrics.detailedFeedback.improvements.map((item, i) => (
-                  <li key={i} className="bg-slate-50 border border-slate-200/80 rounded-sm p-3 text-sm text-slate-700">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="card-surface p-6 text-center">
-                <p className="text-slate-500">Lista de objeções encontradas na chamada</p>
-                <p className="text-slate-400 text-sm mt-2">Nenhuma objeção registrada para esta chamada.</p>
-              </div>
-            )}
-          </div>
+          <ObjectionsDetail objections={callResult.objections} />
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

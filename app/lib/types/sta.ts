@@ -358,6 +358,32 @@ export interface SpinMetrics {
   overallScore: number;
   feedback?: string;
   detailedFeedback?: DetailedFeedback;
+  /** Analytics KPIs */
+  talkListenRatio?: number; // %
+  fillerWords?: number; // wpm
+  talkSpeed?: number; // wpm
+  longestMonologue?: number; // seconds
+  callHistory?: { date: string; score: number }[];
+}
+
+// ============ OBJECTIONS ============
+
+export interface ObjectionDetail {
+  type: string;
+  treated: boolean;
+  clientObjection: string;
+  yourResponse: string;
+  platformFeedback: string;
+  techniqueUsed?: string;
+}
+
+export interface ObjectionsSummary {
+  totalCount: number;
+  treatmentRate: number;
+  treatedCount: number;
+  untreatedCount: number;
+  quality: string;
+  details: ObjectionDetail[];
 }
 
 // ============ CALL RESULT ============
@@ -375,6 +401,8 @@ export interface CallResult {
   rubric_results?: RubricResult[];
   transcript?: string;
   created_at: string;
+  objections?: ObjectionsSummary;
+  user_name?: string;
 }
 
 // ============ MOCK CONVERSATION ============

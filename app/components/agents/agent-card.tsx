@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { getAgentDisplayMeta, AgentDisplayMeta } from '@/app/lib/agent-display-meta';
 import { getCallContextLabel } from '@/app/lib/call-context-labels';
+import { getPersonaAvatarUrl } from '@/app/lib/persona-avatar';
 import { CardActionsMenu } from './card-actions-menu';
 
 interface AgentCardProps {
@@ -36,11 +37,6 @@ function getDifficultyStyles(level: string): { bg: string; text: string } {
   if (level === 'medium') return { bg: 'bg-amber-50', text: 'text-amber-700' };
   if (level === 'hard') return { bg: 'bg-red-50', text: 'text-red-700' };
   return { bg: 'bg-slate-100', text: 'text-slate-600' };
-}
-
-/** URL de avatar real (pessoa) - deterministico por agente para consistência */
-function getPersonaImageUrl(agent: Agent): string {
-  return `https://i.pravatar.cc/256?u=${agent.id}-${encodeURIComponent(agent.persona_name)}`;
 }
 
 function getInitials(name: string): string {
@@ -97,7 +93,7 @@ export function AgentCard({ agent, onEdit, onDelete }: AgentCardProps) {
               </div>
             ) : (
               <Image
-                src={getPersonaImageUrl(agent)}
+                src={getPersonaAvatarUrl(agent.id, agent.persona_name)}
                 alt={displayName}
                 width={64}
                 height={64}

@@ -28,7 +28,10 @@ function LoadingPageContent() {
   }, []);
 
   useEffect(() => {
-    router.push(`/agents/${agentId}/results`);
+    const timer = setTimeout(() => {
+      router.push(`/agents/${agentId}/results`);
+    }, 10000);
+    return () => clearTimeout(timer);
   }, [agentId, router]);
 
   return (
@@ -43,20 +46,20 @@ function LoadingPageContent() {
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 w-full">
-            <button
-              type="button"
-              onClick={handleTentarNovamente}
-              className="btn-primary flex-1 h-11 px-6 text-white font-medium flex items-center justify-center gap-2"
-            >
-              Tentar novamente
-            </button>
+          <div className="flex flex-col gap-3 w-full">
             <button
               type="button"
               onClick={handleVoltarAoInicio}
-              className="btn-secondary flex-1 h-11 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium flex items-center justify-center gap-2"
+              className="btn-primary w-full h-11 px-6 text-white font-medium flex items-center justify-center"
             >
               Voltar ao início
+            </button>
+            <button
+              type="button"
+              onClick={handleTentarNovamente}
+              className="btn-secondary w-full h-11 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium flex items-center justify-center"
+            >
+              Tentar novamente
             </button>
           </div>
         </div>

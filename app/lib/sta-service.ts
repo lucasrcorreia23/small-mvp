@@ -470,3 +470,23 @@ export async function getCallResult(agentId: number): Promise<CallResult> {
   await delay(500);
   return { ...MOCK_CALL_RESULT, agent_id: agentId };
 }
+
+/** Lista todas as sessões (chamadas) de um treinamento - mock com 3-5 CallResults */
+export async function listCallResults(agentId: number): Promise<CallResult[]> {
+  await delay(400);
+  const base = new Date('2025-01-15');
+  const makeSession = (id: string, date: Date, score: number, name: string): CallResult => ({
+    ...MOCK_CALL_RESULT,
+    id,
+    agent_id: agentId,
+    created_at: date.toISOString(),
+    user_name: name,
+    spin_metrics: { ...MOCK_CALL_RESULT.spin_metrics, overallScore: score },
+  });
+  return [
+    makeSession('s1', base, 62, 'Sessão 1'),
+    makeSession('s2', new Date(base.getTime() + 86400000), 68, 'Sessão 2'),
+    makeSession('s3', new Date(base.getTime() + 86400000 * 2), 71, 'Sessão 3'),
+    makeSession('s4', new Date(base.getTime() + 86400000 * 3), 74, 'Sessão 4'),
+  ];
+}

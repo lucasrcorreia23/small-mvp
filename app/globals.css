@@ -50,6 +50,18 @@ body {
   border: 1px solid rgba(226, 232, 240, 0.9);
 }
 
+/* Button tertiary: text/link style, no border */
+.btn-tertiary {
+  border-radius: 2px;
+  border: none;
+  background: transparent;
+  color: #2E63CD;
+}
+.btn-tertiary:hover {
+  color: #1e4a9e;
+  text-decoration: underline;
+}
+
 .page-fade {
   animation: page-fade-in 300ms ease-out;
 }
