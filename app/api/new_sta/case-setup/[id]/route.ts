@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.perfecting.app').replace(/\/$/, '');
-const STA_BASE = API_BASE.endsWith('/new_sta') ? API_BASE : `${API_BASE}/new_sta`;
+const ROLE_PLAYS_BASE = API_BASE.endsWith('/role_plays') ? API_BASE : `${API_BASE}/role_plays`;
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +18,7 @@ export async function GET(
     console.log('[STA] Getting case setup:', id);
 
     try {
-      const response = await fetch(`${STA_BASE}/case_setup_${id}`, {
+      const response = await fetch(`${ROLE_PLAYS_BASE}/case_setup_${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -32,7 +32,14 @@ export async function GET(
       if (contentType && contentType.includes('application/json')) {
         const data = await response.json();
         if (response.ok) {
-          return NextResponse.json(data);
+          const normalized = {
+            ...data,
+            call_context_type_slug:
+              typeof data.call_context_type_slug === 'string'
+                ? data.call_context_type_slug
+                : (typeof data.call_context_type_id === 'number' ? String(data.call_context_type_id) : ''),
+          };
+          return NextResponse.json(normalized);
         }
         if (response.status === 401 || response.status === 403) {
           const msg =

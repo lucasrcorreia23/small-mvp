@@ -1,6 +1,6 @@
 /**
  * Servico para Sales Training Agents (STA)
- * MOCK: NEXT_PUBLIC_USE_MOCK_STA=true usa mock; caso contrario usa API (NEXT_PUBLIC_API_BASE_URL/new_sta)
+ * MOCK: NEXT_PUBLIC_USE_MOCK_STA=true usa mock; caso contrario usa API real via proxy Next.
  * getCallResult permanece sempre mock (sem API de resultado ainda).
  */
 
@@ -36,7 +36,7 @@ import {
   getMockCaseSetupGeneration,
 } from './mock-data';
 
-/** Base para chamadas STA em modo real: API routes Next.js (evita CORS). URL correta: new_sta */
+/** Base para chamadas STA em modo real: API routes Next.js (evita CORS). */
 const STA_API_BASE = '/api/new_sta';
 
 const MOCK_MODE = process.env.NEXT_PUBLIC_USE_MOCK_STA === 'true';
@@ -313,22 +313,35 @@ export async function listAgents(): Promise<Agent[]> {
         for (const context of contexts) {
           try {
             const response = await fetchWithAuth(`${STA_API_BASE}/case-setup/list/${context.id}`, { method: 'GET' });
-            const caseSetups = await handleResponse<CaseSetup[]>(response);
+            const caseSetups = await handleResponse<Array<CaseSetup & {
+              persona_profile?: { name?: string; job_title?: string };
+              company_profile?: { name?: string };
+            }>>(response);
             for (const cs of caseSetups) {
+              let fullCaseSetup = cs;
+              if (!cs.persona_profile || !cs.company_profile) {
+                // List endpoint may return lightweight items; fetch details per case setup when needed.
+                try {
+                  const detailsResponse = await fetchWithAuth(`${STA_API_BASE}/case-setup/${cs.id}`, { method: 'GET' });
+                  fullCaseSetup = await handleResponse<CaseSetup>(detailsResponse);
+                } catch (detailsErr) {
+                  console.warn('Erro ao obter detalhes do case setup', cs.id, detailsErr);
+                }
+              }
               agents.push({
-                id: cs.id,
-                training_name: cs.training_name,
-                training_description: cs.training_description,
+                id: fullCaseSetup.id,
+                training_name: fullCaseSetup.training_name,
+                training_description: fullCaseSetup.training_description,
                 offer_name: offer.offer_name,
                 offer_id: offer.id,
                 context_id: context.id,
-                persona_name: cs.persona_profile.name,
-                persona_job_title: cs.persona_profile.job_title,
-                company_name: cs.company_profile.name,
-                call_context_type_slug: cs.call_context_type_slug,
-                scenario_difficulty_level: cs.scenario_difficulty_level,
-                elevenlabs_agent_id: cs.elevenlabs_agent_id,
-                created_at: cs.created_at,
+                persona_name: fullCaseSetup.persona_profile?.name || '',
+                persona_job_title: fullCaseSetup.persona_profile?.job_title || '',
+                company_name: fullCaseSetup.company_profile?.name || '',
+                call_context_type_slug: fullCaseSetup.call_context_type_slug || '',
+                scenario_difficulty_level: fullCaseSetup.scenario_difficulty_level || '',
+                elevenlabs_agent_id: fullCaseSetup.elevenlabs_agent_id,
+                created_at: fullCaseSetup.created_at,
               });
             }
           } catch (err) {

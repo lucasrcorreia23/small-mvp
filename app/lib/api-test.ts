@@ -184,25 +184,18 @@ export async function testLogin(email: string, password: string) {
 }
 
 /**
- * Teste detalhado de agent link - testa diferentes formas de autenticação
- * Usa a API route do Next.js para evitar CORS
+ * Teste detalhado de agent link - testa diferentes formas de autenticação.
+ * Usa a API route do Next.js para evitar CORS.
  */
-export async function testAgentLink(userTime: string, authMethod?: {
+export async function testAgentLink(caseSetupId: number, authMethod?: {
   type: 'bearer' | 'cookie' | 'header';
   value?: string;
   headerName?: string;
 }) {
   console.group('🔍 TESTE AGENT LINK - Análise Completa');
-  console.log('📤 User Time (recebido):', userTime);
+  console.log('📤 case_setup_id (recebido):', caseSetupId);
   console.log('🔑 Método de autenticação:', authMethod || 'Nenhum (testando sem auth)');
-
-  // Formato esperado pela API: "23:37:08.837Z" ou "10:30 AM" ou "10:30"
-  // Vamos testar com o formato que o usuário forneceu
-  const formattedTime = userTime;
-  const url = `/api/get-agent-link?user_time=${encodeURIComponent(formattedTime)}`;
-  console.log('📤 User Time (enviado):', formattedTime);
-  console.log('🌐 Chamando API route local:', url);
-  console.log('📤 URL completa (via proxy):', url);
+  console.log('🌐 Chamando API route local: /api/get-agent-link');
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -222,10 +215,11 @@ export async function testAgentLink(userTime: string, authMethod?: {
   }
 
   try {
-    const response = await fetch(url, {
-      method: 'GET',
+    const response = await fetch('/api/get-agent-link', {
+      method: 'POST',
       headers,
       credentials: 'include', // Importante: inclui cookies
+      body: JSON.stringify({ case_setup_id: caseSetupId }),
     });
 
     // Logar TODOS os headers da resposta
@@ -322,7 +316,11 @@ export async function testFullFlow(userData: SignupTestData, userTime: string) {
 
   // Passo 3: Obter agent link com o token
   console.log('\n📝 PASSO 3: Obtendo Agent Link com Bearer token');
-  const agentLinkResult = await testAgentLink(userTime, {
+  const caseSetupId = Number(userTime);
+  if (!Number.isInteger(caseSetupId) || caseSetupId <= 0) {
+    throw new Error('testFullFlow: informe um case_setup_id válido no segundo parâmetro.');
+  }
+  const agentLinkResult = await testAgentLink(caseSetupId, {
     type: 'bearer',
     value: accessToken,
   });

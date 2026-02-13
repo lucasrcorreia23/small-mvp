@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.perfecting.app').replace(/\/$/, '');
-const STA_BASE = API_BASE.endsWith('/new_sta') ? API_BASE : `${API_BASE}/new_sta`;
+const ROLE_PLAYS_BASE = API_BASE.endsWith('/role_plays') ? API_BASE : `${API_BASE}/role_plays`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     console.log('[STA] Generating offer:', JSON.stringify(apiBody));
 
     try {
-      const response = await fetch(`${STA_BASE}/offer/generate`, {
+      const response = await fetch(`${ROLE_PLAYS_BASE}/offer/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

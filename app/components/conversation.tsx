@@ -68,31 +68,28 @@ export function Conversation() {
   });
 
   const getSignedUrl = async (): Promise<string> => {
-    // Verificar se já temos o link salvo no localStorage
-    const savedLink = localStorage.getItem('perfecting_agent_link');
-    if (savedLink) {
-      return savedLink;
-    }
-
     const token = getToken();
     if (!token) {
       throw new Error('Token de autenticação não encontrado. Faça login novamente.');
     }
 
-    // Obter horário do usuário no formato "HH:mm" (ex: "10:30")
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const userTime = `${hours}:${minutes}`;
+    const localCaseSetupId = Number(localStorage.getItem('active_case_setup_id'));
+    const envCaseSetupId = Number(process.env.NEXT_PUBLIC_DEFAULT_CASE_SETUP_ID);
+    const caseSetupId = Number.isInteger(localCaseSetupId) && localCaseSetupId > 0
+      ? localCaseSetupId
+      : envCaseSetupId;
 
-    // Chamar API para obter link do agente (GET com query parameter)
-    const url = `/api/get-agent-link?user_time=${encodeURIComponent(userTime)}`;
-    const response = await fetch(url, {
-      method: 'GET',
+    if (!Number.isInteger(caseSetupId) || caseSetupId <= 0) {
+      throw new Error('Roleplay não selecionado para iniciar a chamada.');
+    }
+
+    const response = await fetch('/api/get-agent-link', {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`, // Token no header Authorization
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ case_setup_id: caseSetupId }),
     });
 
     if (!response.ok) {
@@ -118,11 +115,6 @@ export function Conversation() {
 
     const data = await response.json();
     const signedUrl = data.signed_url || data.link || data.agent_link || data;
-
-    // Salvar link no localStorage para reutilização
-    if (signedUrl && typeof signedUrl === 'string') {
-      localStorage.setItem('perfecting_agent_link', signedUrl);
-    }
 
     return signedUrl;
   };

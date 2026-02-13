@@ -29,6 +29,25 @@ const difficultyLevels = [
   { value: 'hard', label: 'Dificil', description: 'Cliente resistente e critico' },
 ];
 
+const CASE_SETUP_GENERATE_TIMEOUT_MS = 70_000;
+
+function timeoutErrorMessage(ms: number): string {
+  const seconds = Math.round(ms / 1000);
+  return `A geração do cenário está demorando mais do que o esperado (${seconds}s). Tente novamente em instantes.`;
+}
+
+async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(timeoutErrorMessage(ms))), ms);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+}
+
 export function StepCaseSetup({ contextId, initialData, onComplete, onBack, setFooterContent }: StepCaseSetupProps) {
   // Training fields (editable)
   const [trainingName, setTrainingName] = useState(initialData.training_name || '');
@@ -94,7 +113,7 @@ export function StepCaseSetup({ contextId, initialData, onComplete, onBack, setF
     setError(null);
 
     try {
-      const generated: CaseSetupGenerateResponse = await generateCaseSetup({
+      const generated: CaseSetupGenerateResponse = await withTimeout(generateCaseSetup({
         context_id: contextId,
         call_context_type_slug: callContextSlug || undefined,
         scenario_difficulty_level: difficultyLevel || undefined,
@@ -102,7 +121,7 @@ export function StepCaseSetup({ contextId, initialData, onComplete, onBack, setF
         training_targeted_sales_skills: targetedSkillsInput.trim() || undefined,
         aditional_instructions: additionalInstructions.trim() || undefined,
         infer,
-      });
+      }), CASE_SETUP_GENERATE_TIMEOUT_MS);
 
       setTrainingName(generated.training_name || '');
       setTrainingDescription(generated.training_description || '');

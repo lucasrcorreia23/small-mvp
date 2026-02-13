@@ -99,16 +99,15 @@ function CallPageContent() {
   });
 
   const getSignedUrl = useCallback(async (): Promise<string> => {
-    const savedLink = localStorage.getItem('perfecting_agent_link');
-    if (savedLink) return savedLink;
     const token = getToken();
     if (!token) throw new Error('Token não encontrado. Faça login novamente.');
-    const now = new Date();
-    const userTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const url = `/api/get-agent-link?user_time=${encodeURIComponent(userTime)}`;
-    const response = await fetch(url, {
-      method: 'GET',
+    if (!Number.isInteger(agentId) || agentId <= 0) {
+      throw new Error('ID do roleplay inválido.');
+    }
+    const response = await fetch('/api/get-agent-link', {
+      method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ case_setup_id: agentId }),
     });
     if (!response.ok) {
       if (response.status === 401) {
@@ -120,14 +119,11 @@ function CallPageContent() {
     }
     const data = await response.json();
     const signedUrl = data.signed_url || data.link || data.agent_link || data;
-    if (signedUrl && typeof signedUrl === 'string') {
-      localStorage.setItem('perfecting_agent_link', signedUrl);
-    }
     if (!signedUrl || typeof signedUrl !== 'string') {
       throw new Error('Resposta da API sem URL do agente.');
     }
     return signedUrl;
-  }, []);
+  }, [agentId]);
 
   const startRealCall = useCallback(async () => {
     setError(null);

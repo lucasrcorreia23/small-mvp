@@ -39,7 +39,13 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await signup({ name: name.trim(), email: email.trim(), password });
-      await login(email.trim(), password);
+      const tokenAfterSignup = getToken();
+      if (!tokenAfterSignup) {
+        setError('Conta criada, mas não foi possível iniciar sua sessão. Faça login para continuar.');
+        setMode('login');
+        setSignupStep(1);
+        return;
+      }
       setSignupStep(2);
     } catch (err) {
       console.error('Auth error:', err);

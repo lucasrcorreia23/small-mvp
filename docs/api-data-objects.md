@@ -1,133 +1,84 @@
 # API Data Objects - Documentação de Referência
 
-> **Base URL:** `{API_BASE}/new_sta` (ex: `https://api.perfecting.app/new_sta`)
-> **Auth:** Todas as rotas requerem `Authorization: Bearer {token}`
+> **Base URL:** `NEXT_PUBLIC_API_BASE_URL`
+> **Path base:** `/data_objects`
+> **Observação:** no OpenAPI recebido, estes endpoints não declaram `security` obrigatória.
 
 ---
 
-## Hierarquia dos objetos
+## Schema principal
 
+### `SimpleItemOut`
+
+```json
+{
+  "id": 1,
+  "name": "string"
+}
 ```
-Offer (Oferta)
-  └── Context (Contexto) [offer_id]
-        └── Case Setup (Roleplay/Treinamento) [context_id]
-```
+
+Usado por quase todos os endpoints desta API.
 
 ---
 
-## 1. OFFER (Oferta)
+## Endpoints
 
-### GET /offer/list
+## 1. GET /data_objects/genders
 
-Lista todas as ofertas.
-
-**Response:** `Offer[]`
-
-### POST /offer/generate
-
-Gera campos da oferta com IA a partir de `offer_name` e `general_description`.
-
-**Request:** `{ offer_name, general_description, infer?: boolean }`
-
-**Response:** `OfferGenerateResponse` (objeto com todos os campos preenchidos)
-
-### POST /offer/create
-
-Cria uma nova oferta.
-
-**Request:** `OfferCreateRequest` (offer_name, general_description, + campos opcionais)
-
-**Response:** `Offer` (com `id` ou `offer_id`)
+- **Tag:** `Public`
+- **Summary:** `List Genders`
+- **Response 200:** `SimpleItemOut[]`
 
 ---
 
-## 2. CONTEXT (Contexto)
+## 2. GET /data_objects/communication_styles
 
-### GET /context/list/offer_{offerId}
-
-Lista contextos de uma oferta.
-
-**Response:** `Context[]`
-
-### POST /context/generate
-
-Gera contexto com IA para uma oferta.
-
-**Request:** `{ offer_id: number, aditional_instructions?: string, infer?: boolean }`
-
-**Response:** `ContextGenerateResponse`
-
-### POST /context/create
-
-Cria um novo contexto.
-
-**Request:** `ContextCreateRequest` (offer_id, name, target_description, + opcionais)
-
-**Response:** `Context`
+- **Tag:** `Role Plays`
+- **Summary:** `List Communication Styles`
+- **Response 200:** `SimpleItemOut[]`
 
 ---
 
-## 3. CASE SETUP (Roleplay/Treinamento)
+## 3. GET /data_objects/average_sales_cycle_lengths
 
-### GET /case_setup/values/call_context
-
-Retorna valores de contexto de chamada (call_context_type_slug).
-
-**Response:** Lista de `{ slug, label, description? }`
-
-### POST /case_setup/generate
-
-Gera case setup com IA.
-
-**Request:** `CaseSetupGenerateRequest` (context_id, call_context_type_slug?, scenario_difficulty_level?, etc.)
-
-**Response:** `CaseSetupGenerateResponse` (persona_profile, company_profile, salesperson_success_criteria, etc.)
-
-### POST /case_setup/create
-
-Cria um novo case setup (roleplay pronto para uso).
-
-**Request:** `CaseSetupCreateRequest` (objeto completo com persona, company, buyer_instructions, etc.)
-
-**Response:** `CaseSetup`
-
-### GET /case_setup/context_{contextId}/list
-
-Lista case setups de um contexto.
-
-**Response:** `CaseSetup[]`
-
-### GET /case_setup_{id}
-
-Retorna um case setup por ID.
-
-**Response:** `CaseSetup`
+- **Tag:** `Role Plays`
+- **Summary:** `List Average Sales Cycle Lengths`
+- **Response 200:** `SimpleItemOut[]`
 
 ---
 
-## Mapeamento no projeto
+## 4. GET /data_objects/call_context_categories
 
-| API | Route Next.js | Serviço |
-|-----|---------------|---------|
-| offer/list | `/api/new_sta/offer/list` | `sta-service.ts` → `listOffers()` |
-| offer/generate | `/api/new_sta/offer/generate` | `generateOffer()` |
-| offer/create | `/api/new_sta/offer/create` | `createOffer()` |
-| context/list | `/api/new_sta/context/list/[offerId]` | `listContexts(offerId)` |
-| context/generate | `/api/new_sta/context/generate` | `generateContext()` |
-| context/create | `/api/new_sta/context/create` | `createContext()` |
-| case_setup/values | `/api/new_sta/case-setup/values` | `getCallContextValues()` |
-| case_setup/generate | `/api/new_sta/case-setup/generate` | `generateCaseSetup()` |
-| case_setup/create | `/api/new_sta/case-setup/create` | `createCaseSetup()` |
-| case_setup/list | `/api/new_sta/case-setup/list/[contextId]` | waterfall em `listAgents()` |
-| case_setup/{id} | `/api/new_sta/case-setup/[id]` | `getAgent()`, `getRoleplayDetail()` |
+- **Tag:** `Role Plays`
+- **Summary:** `List Call Context Categories`
+- **Response 200:** `SimpleItemOut[]`
 
 ---
 
-## Tipos principais
+## 5. GET /data_objects/call_context_types
 
-Veja `app/lib/types/sta.ts` para definições completas:
+- **Tag:** `Role Plays`
+- **Summary:** `List Call Context Types`
+- **Response 200:** `SimpleItemOut[]`
 
-- `Offer`, `OfferCreateRequest`, `OfferGenerateResponse`
-- `Context`, `ContextCreateRequest`, `ContextGenerateResponse`
-- `CaseSetup`, `CaseSetupCreateRequest`, `CaseSetupGenerateResponse`
-- `PersonaOutput`, `EmployerCompanyOutput`, `AgentInstructionsOutput`
+---
+
+## 6. GET /data_objects/methodologies
+
+- **Tag:** `Role Plays`
+- **Summary:** `List Methodologies`
+- **Response 200:** `SimpleItemOut[]`
+
+---
+
+## 7. GET /data_objects/persona_voices
+
+- **Tag:** `Role Plays`
+- **Summary:** `List Persona Voices`
+- **Response 200:** objeto sem schema tipado no contrato (`{}`)
+
+---
+
+## Erros
+
+O OpenAPI recebido não detalha respostas de erro para estes endpoints.

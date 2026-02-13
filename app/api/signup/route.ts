@@ -25,7 +25,7 @@ interface SignupRequest {
   email: string;
   password: string;
   nickname?: string;
-  gender_slug?: string;
+  gender_id?: number;
   cell_phone?: string;
 }
 
@@ -57,17 +57,16 @@ export async function POST(request: NextRequest) {
     const authPath = (process.env.AUTH_BASE_PATH ?? process.env.NEXT_PUBLIC_AUTH_BASE_PATH ?? '/auth').replace(/\/$/, '') || '';
     const pathPrefix = authPath ? `/${authPath.replace(/^\//, '')}` : '';
 
-    // Auth API CreateUser Input: name, email, password required; nickname, gender_slug, cell_phone optional (omit when empty)
-    const payload: Record<string, string> = {
+    // Auth API CreateUser Input: name, email, password required; nickname, gender_id, cell_phone optional.
+    const payload: Record<string, string | number> = {
       name: body.name.trim(),
       email: body.email.trim(),
       password: body.password,
     };
     const nickname = body.nickname?.trim();
-    const genderSlug = body.gender_slug?.trim();
     const cellPhone = body.cell_phone?.trim();
     if (nickname) payload.nickname = nickname;
-    if (genderSlug) payload.gender_slug = genderSlug;
+    if (typeof body.gender_id === 'number' && Number.isInteger(body.gender_id)) payload.gender_id = body.gender_id;
     if (cellPhone) payload.cell_phone = cellPhone;
 
     // Auth API: POST {base}{pathPrefix}/create_user (pathPrefix padrão: /auth)

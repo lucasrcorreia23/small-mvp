@@ -1,144 +1,143 @@
 # API Auth - Documentação de Referência
 
-> **Base URL:** `NEXT_PUBLIC_API_BASE_URL` (ex: `https://api-hml.perfecting.app` ou `https://api.perfecting.app`)
-> **Path base:** `AUTH_BASE_PATH` (padrão: `/auth`)
+> **Base URL:** `NEXT_PUBLIC_API_BASE_URL` (ex: `https://api-hml.perfecting.app`)
+> **Path base:** `/auth`
+> **Segurança OAuth2 Password:** `tokenUrl=/auth/login`
 
 ---
 
 ## 1. POST /auth/create_user
 
-Cria um novo usuário no sistema.
+Cria um usuário.
 
-### Request
+### Request (application/json)
 
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| name | string | Sim | Nome completo |
-| email | string | Sim | Email (único) |
-| password | string | Sim | Senha |
-| nickname | string | Não | Apelido |
-| gender_slug | string | Não | Identificador de gênero |
-| cell_phone | string | Não | Telefone celular |
+| Campo | Tipo | Obrigatório |
+|---|---|---|
+| name | string | Sim |
+| email | string | Sim |
+| password | string | Sim |
+| nickname | string \| null | Não |
+| gender_id | integer \| null | Não |
+| cell_phone | string \| null | Não |
 
 ### Response (200)
 
 ```json
 {
-  "id": number,
-  "name": string,
-  "email": string
+  "id": 1,
+  "name": "string",
+  "email": "string"
 }
 ```
 
 ### Erros
 
-- **409:** Usuário já cadastrado
-- **400/422:** Erro de validação
-
-### Nota
-
-Após criar o usuário, use **POST /auth/login** para obter o token.
+- `422` Validation Error (`HTTPValidationError`)
 
 ---
 
 ## 2. POST /auth/login
 
-Autentica o usuário e retorna o token de acesso (OAuth2 password flow).
+Autentica via OAuth2 Password e retorna token + `user_scope`.
 
-### Request
+### Request (application/x-www-form-urlencoded)
 
-**Content-Type:** `application/x-www-form-urlencoded`
-
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| grant_type | string | `"password"` |
-| username | string | Email do usuário |
-| password | string | Senha |
+| Campo | Tipo | Obrigatório | Regra |
+|---|---|---|---|
+| grant_type | string | Sim | deve ser `password` |
+| username | string | Sim | |
+| password | string | Sim | |
+| scope | string | Não | default `""` |
+| client_id | string \| null | Não | |
+| client_secret | string \| null | Não | |
 
 ### Response (200)
 
 ```json
 {
-  "access_token": string,
-  "token_type": "bearer",
+  "access_token": "string",
+  "token_type": "string",
   "user_scope": {
-    "user_id": number,
-    "email": string,
-    "name": string,
-    "email_checked": boolean,
-    "organization_id": number | null,
-    "organization_is_active": boolean | null,
-    "organization_resources": object[] | null,
-    "required_change_password": boolean,
-    "is_active": boolean,
-    "superadmin": boolean,
-    "resources": object[],
-    "groups": string[]
+    "user_id": 1,
+    "email": "string",
+    "name": "string",
+    "email_checked": true,
+    "organization_id": 10,
+    "organization_is_active": true,
+    "organization_resources": [],
+    "required_change_password": false,
+    "is_active": true,
+    "superadmin": false,
+    "resources": [],
+    "groups": []
   }
 }
 ```
 
-### Uso do token
+### Erros
 
-Header em todas as requisições autenticadas:
-```
-Authorization: Bearer {access_token}
-```
-
-Persistir em `localStorage` com chave `token` e `user_scope`.
+- `422` Validation Error (`HTTPValidationError`)
 
 ---
 
 ## 3. POST /auth/create_organization
 
-Cria uma organização associada ao usuário. **Requer token.**
+Cria organização para o usuário autenticado.
 
-### Request
+### Segurança
 
-**Header:** `Authorization: Bearer {token}`
+- Requer `Authorization: Bearer {access_token}`
 
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| cnpj | number | Sim | CNPJ |
-| name | string | Sim | Nome da organização |
-| url | string | Sim | URL do site |
-| official_name | string | Não | Razão social |
-| description | string | Não | Descrição |
+### Request (application/json)
+
+| Campo | Tipo | Obrigatório |
+|---|---|---|
+| cnpj | integer | Sim |
+| name | string | Não |
+| official_name | string \| null | Não |
+| url | string \| null | Não |
+| description | string \| null | Não |
 
 ### Response (200)
 
 ```json
 {
-  "organization_name": string,
-  "organization_id": number,
-  "new_token": {
-    "access_token": string,
-    "token_type": string,
-    "user_scope": object
-  }
+  "organization_name": "string",
+  "organization_id": 1,
+  "new_token": {}
 }
 ```
 
-### Importante
+### Erros
 
-Após criar a organização, **substitua o token** atual pelo `new_token` retornado (contém `organization_id` no user_scope).
-
----
-
-## Mapeamento no projeto
-
-| API | Route Next.js | Serviço |
-|-----|---------------|----------|
-| create_user | `/api/signup` | `auth-service.ts` → `signup()` |
-| login | `/api/login` | `auth-service.ts` → `login()` |
-| create_organization | `/api/create-organization` | `auth-service.ts` → `createOrganization()` |
+- `422` Validation Error (`HTTPValidationError`)
 
 ---
 
-## Variáveis de ambiente
+## 4. POST /auth/refresh
 
-```env
-NEXT_PUBLIC_API_BASE_URL=https://api-hml.perfecting.app
-AUTH_BASE_PATH=/auth
-NEXT_PUBLIC_USE_MOCK_AUTH=false
+Renova sessão autenticada e retorna o mesmo schema de saída do login.
+
+### Segurança
+
+- Requer `Authorization: Bearer {access_token}`
+
+### Response (200)
+
+Mesmo schema de `POST /auth/login`:
+
+```json
+{
+  "access_token": "string",
+  "token_type": "string",
+  "user_scope": {}
+}
 ```
+
+---
+
+## Schemas de erro
+
+- `HTTPValidationError.detail`: lista de `ValidationError`
+- `ValidationError`: `{ loc: (string|integer)[], msg: string, type: string }`

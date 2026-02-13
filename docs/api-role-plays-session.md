@@ -1,84 +1,74 @@
 # API Role Plays Session - Documentação de Referência
 
-> **Sessões** = chamadas de prática realizadas (resultados)
-> **Status atual:** Sem API de produção documentada – projeto usa mock
+> **Base URL:** `NEXT_PUBLIC_API_BASE_URL`
+> **Path base:** `/role_plays_session`
 
 ---
 
-## O que é uma Sessão?
+## Endpoints
 
-Uma **sessão** é uma execução de prática de um role play: o usuário faz uma chamada de voz com o agente de IA e, ao final, recebe feedback e métricas.
+## 1. POST /role_plays_session/get_agent_link
 
----
+- **Tag:** `Elevenlabs Integration`
+- **Auth:** sim (`OAuth2PasswordBearer`)
+- **Request body (application/json):**
 
-## Fluxo atual (mock)
-
-1. **Chamada:** Usuário conecta via WebSocket (`signed_url` do get_agent_link) ou mock
-2. **Durante:** Transcrição e áudio em tempo real
-3. **Ao encerrar:** Redireciona para `/agents/[id]/loading`
-4. **Resultado:** `getCallResult(agentId)` retorna mock fixo
-
----
-
-## Endpoints esperados (a implementar)
-
-Baseado na estrutura do projeto, a API de sessões provavelmente terá:
-
-### Listar sessões de um role play
-
-```
-GET /role_plays/{role_play_id}/sessions
-ou
-GET /sessions?agent_id={id}
+```json
+{
+  "case_setup_id": 1
+}
 ```
 
-**Response:** `Session[]` ou `CallResult[]`
+Schema: `Input` (`case_setup_id: integer` obrigatório).
 
-Cada sessão deve ter:
-- `id`
-- `agent_id` (role play id)
-- `created_at`
-- `duration_seconds`
-- `spin_metrics` (overallScore, feedback, etc.)
-- `rubric_results`
-- `objections` (quando disponível)
-- `user_name` (opcional)
+- **Response 200 (`Output`):**
 
-### Obter resultado de uma sessão
-
+```json
+{
+  "signed_url": "string",
+  "case_data": {
+    "case_setup_id": 1,
+    "training_name": "string",
+    "training_objective": "string",
+    "salesperson_instructions": [],
+    "salesperson_desired_tone_and_mood": "string",
+    "salesperson_desired_behaviors": [],
+    "salesperson_undesired_behaviors": [],
+    "salesperson_success_criteria": [],
+    "elevenlabs_agent_id": "string"
+  }
+}
 ```
-GET /sessions/{session_id}
-ou
-GET /role_plays/{role_play_id}/sessions/{session_id}
-```
 
-**Response:** `CallResult` completo
+- **Erro documentado:** `422` (`HTTPValidationError`)
 
 ---
 
-## Tipos no projeto
+## 2. POST /role_plays_session/receive_conversation_webhook
 
-Veja `app/lib/types/sta.ts`:
-
-- `CallResult` – resultado de uma sessão
-- `SpinMetrics` – scores SPIN, feedback, analytics
-- `RubricResult` – critérios atendidos ou não
-- `ObjectionsSummary` – objeções identificadas e tratadas
+- **Tag:** `Elevenlabs Integration`
+- **Auth:** não declarada no OpenAPI fornecido
+- **Request body:** não especificado no contrato
+- **Response 200:** objeto sem schema tipado (`{}`)
 
 ---
 
-## Serviços atuais
+## Schemas
 
-| Função | Arquivo | Status |
-|--------|---------|--------|
-| `getCallResult(agentId)` | `sta-service.ts` | Sempre mock |
-| `listCallResults(agentId)` | `sta-service.ts` | Mock com 4 sessões |
+### `CaseData` (retornado em `Output.case_data`)
 
----
+Campos obrigatórios:
 
-## Plano de integração
+- `case_setup_id: integer`
+- `training_name: string`
+- `training_objective: string`
+- `salesperson_instructions: string[]`
+- `salesperson_desired_tone_and_mood: string`
+- `salesperson_desired_behaviors: string[]`
+- `salesperson_undesired_behaviors: string[]`
+- `salesperson_success_criteria: string[]`
+- `elevenlabs_agent_id: string`
 
-1. Verificar documentação oficial da API em `api-hml.perfecting.app/role-plays-session/docs`
-2. Criar rotas em `/api/` que façam proxy para a API real
-3. Atualizar `sta-service.ts` para usar as rotas quando a API estiver disponível
-4. Manter mock como fallback quando `NEXT_PUBLIC_USE_MOCK_STA=true`
+### Erro de validação
+
+- `HTTPValidationError.detail`: `ValidationError[]`

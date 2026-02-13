@@ -24,6 +24,40 @@ import { StepScenario } from './step-scenario';
 import { StepReview } from './step-review';
 import { StepSuccess } from './step-success';
 
+const CASE_SETUP_GENERATE_TIMEOUT_MS = 70_000;
+const CASE_SETUP_GENERATE_RETRIES = 1;
+
+function timeoutErrorMessage(ms: number): string {
+  const seconds = Math.round(ms / 1000);
+  return `A geração do cenário está demorando mais do que o esperado (${seconds}s). Tente novamente em instantes.`;
+}
+
+async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(timeoutErrorMessage(ms))), ms);
+  });
+
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+}
+
+function isRetriableGenerateError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message.toLowerCase() : '';
+  return (
+    msg.includes('timed out') ||
+    msg.includes('demorando mais') ||
+    msg.includes('network') ||
+    msg.includes('failed to fetch') ||
+    msg.includes('502') ||
+    msg.includes('503') ||
+    msg.includes('504')
+  );
+}
+
 function formatCallContextLabel(slug: string): string {
   const map: Record<string, string> = {
     cold_call: 'Cold Call',
@@ -174,15 +208,32 @@ export function WizardContainer() {
       const contextId = state.context.id;
       if (!contextId) throw new Error('Context ID not found');
 
+      const executeGenerateWithRetry = async () => {
+        let attempt = 0;
+        while (true) {
+          attempt += 1;
+          try {
+            return await withTimeout(
+              generateCaseSetup({
+                context_id: contextId,
+                call_context_type_slug: data.call_context_type_slug || undefined,
+                scenario_difficulty_level: data.scenario_difficulty_level || undefined,
+                training_targeted_sales_skills: data.training_targeted_sales_skill || undefined,
+                aditional_instructions: data.additional_instructions || undefined,
+              }),
+              CASE_SETUP_GENERATE_TIMEOUT_MS
+            );
+          } catch (err) {
+            const canRetry = attempt <= CASE_SETUP_GENERATE_RETRIES && isRetriableGenerateError(err);
+            if (!canRetry) throw err;
+            await new Promise((resolve) => setTimeout(resolve, 1200));
+          }
+        }
+      };
+
       const [, generated] = await Promise.all([
         new Promise((resolve) => setTimeout(resolve, 10000)),
-        generateCaseSetup({
-          context_id: contextId,
-          call_context_type_slug: data.call_context_type_slug || undefined,
-          scenario_difficulty_level: data.scenario_difficulty_level || undefined,
-          training_targeted_sales_skills: data.training_targeted_sales_skill || undefined,
-          aditional_instructions: data.additional_instructions || undefined,
-        }),
+        executeGenerateWithRetry(),
       ]);
 
       setGeneratedData(generated);

@@ -14,7 +14,7 @@ export interface SignupData {
   email: string;
   password: string;
   nickname?: string;
-  gender_slug?: string;
+  gender_id?: number;
   cell_phone?: string;
 }
 
@@ -90,11 +90,14 @@ function sanitizeToken(raw: string | null | undefined): string | null {
 export async function signup(userData: SignupData): Promise<User> {
   if (MOCK_MODE) {
     await delay(600);
-    return {
+    const createdUser: User = {
       id: 1,
       name: userData.name,
       email: userData.email,
     };
+    // Keep signup behavior consistent with real flow: persist token before next steps.
+    await login(userData.email.trim(), userData.password);
+    return createdUser;
   }
 
   const payload = {
@@ -102,7 +105,7 @@ export async function signup(userData: SignupData): Promise<User> {
     email: userData.email,
     password: userData.password,
     ...(userData.nickname != null && userData.nickname !== '' && { nickname: userData.nickname }),
-    ...(userData.gender_slug != null && userData.gender_slug !== '' && { gender_slug: userData.gender_slug }),
+    ...(typeof userData.gender_id === 'number' && Number.isInteger(userData.gender_id) && { gender_id: userData.gender_id }),
     ...(userData.cell_phone != null && userData.cell_phone !== '' && { cell_phone: userData.cell_phone }),
   };
 
@@ -129,8 +132,16 @@ export async function signup(userData: SignupData): Promise<User> {
     throw new Error(typeof msg === 'string' ? msg : fallback);
   }
 
-  // Spec: create_user retorna apenas { id, name, email }. Token vem do login subsequente.
-  return data as User;
+  const createdUser = data as User;
+  try {
+    // Required app behavior: after signup the user must have token/user_scope in localStorage.
+    await login(userData.email.trim(), userData.password);
+  } catch (loginErr) {
+    const reason = loginErr instanceof Error ? loginErr.message : 'falha desconhecida';
+    throw new Error(`Conta criada, mas o login automático falhou (${reason}). Faça login manual para continuar.`);
+  }
+
+  return createdUser;
 }
 
 /**

@@ -1,78 +1,142 @@
 # API Role Plays - Documentação de Referência
 
-> **Relacionado a:** Data Objects (Case Setup = Role Play)
-> **Auth:** Todas as rotas requerem token
+> **Base URL:** `NEXT_PUBLIC_API_BASE_URL`
+> **Path base:** `/role_plays`
+> **Segurança padrão:** `OAuth2PasswordBearer` (quando indicado em cada endpoint)
 
 ---
 
-## O que é um Role Play?
+## Visão geral de grupos de endpoints
 
-Um **Role Play** (ou **Agent**) é o resultado de um **Case Setup** criado. É o treinamento pronto para o usuário praticar.
-
----
-
-## Obtenção de Role Plays
-
-Os role plays são obtidos via **Data Objects**:
-
-1. **Listar todos:** waterfall `listOffers()` → `listContexts(offerId)` → `case_setup/list` por contexto
-2. **Obter um:** `GET /case_setup_{id}` → `getAgent()` ou `getRoleplayDetail()`
-
-### Estrutura agregada (Agent)
-
-O frontend monta um objeto `Agent` agregando:
-
-- `id` = Case Setup id
-- `training_name`, `training_description`, etc. do Case Setup
-- `persona_name`, `persona_job_title` do `persona_profile`
-- `company_name` do `company_profile`
-- `offer_name`, `offer_id`, `context_id` das entidades pai
+- **1 - Offer**
+- **2 - Contexts**
+- **3.1 - Case Setup Values**
+- **3.2 - Case Setup**
 
 ---
 
-## Link do Agente (WebSocket)
+## 1) Offer
 
-Para iniciar uma chamada de prática, é necessário obter uma **URL assinada** do agente.
+### POST /role_plays/offer/generate
 
-### POST /get_agent_link/keune
+- **Auth:** sim
+- **Body:** `src__application__services__role_plays__s1_offer_crud__OfferCRUD__Generate__Input`
+- **Responses:** `200` (output), `422` (validation)
 
-**Base:** `{API_BASE}` (não `/new_sta`)
+### POST /role_plays/offer/create
 
-**Request:**
-```json
-{
-  "user_time": "HH:mm" ou "HH:mm:ss.SSSZ"
-}
-```
+- **Auth:** sim
+- **Body:** `src__application__services__role_plays__s1_offer_crud__OfferCRUD__Create__Input`
+- **Responses:** `201` (OfferModelPydanticSchema), `422`
 
-**Header:** `Authorization: Bearer {token}`
+### GET /role_plays/offer/list
 
-**Response:**
-```json
-{
-  "signed_url": "wss://...",
-  "agent_link": "wss://...",
-  "link": "wss://..."
-}
-```
+- **Auth:** sim
+- **Responses:** `200` (lista de `OfferModel__SchemaGetListItem`)
 
-### Mapeamento no projeto
+### GET /role_plays/offer_{offer_id}
 
-| API | Route Next.js | Uso |
-|-----|---------------|-----|
-| get_agent_link | `/api/get-agent-link?user_time=10:30` | `get-agent-link/route.ts` → `getSignedUrl()` em `call/page.tsx` |
+- **Auth:** sim
+- **Path param:** `offer_id: integer`
+- **Responses:** `200` (OfferModelPydanticSchema), `422`
 
-### Fluxo
+### PUT /role_plays/offer_{offer_id}
 
-1. Usuário clica "Iniciar Chamada" na página de detalhes do roleplay
-2. `get-agent-link` é chamado com `user_time` (horário atual do usuário)
-3. Resposta contém `signed_url` (WebSocket) para conectar ao agente ElevenLabs
-4. `useConversation` usa essa URL para a chamada de voz
+- **Auth:** sim
+- **Path param:** `offer_id: integer`
+- **Body:** `ContextModelExcl_created_at_created_by_user_id_updated_at_updated_by_user_id_id_organization_idAllOptPydanticSchema`
+- **Responses:** `202` (OfferModelPydanticSchema), `422`
+
+### DELETE /role_plays/offer_{offer_id}
+
+- **Auth:** sim
+- **Path param:** `offer_id: integer`
+- **Responses:** `204`, `422`
 
 ---
 
-## Organização e permissões
+## 2) Contexts
 
-- O token deve ter `organization_id` no `user_scope` para acessar role plays
-- `create_organization` retorna `new_token` que deve ser usado após criar a org
-- Erro 403: "User organization does not have access" → usuário sem org ou org sem acesso
+### POST /role_plays/context/generate
+
+- **Auth:** sim
+- **Body:** `src__application__services__role_plays__s2_context_crud__ContextCRUD__Generate__Input`
+- **Responses:** `200` (output), `422`
+
+### POST /role_plays/context/create
+
+- **Auth:** sim
+- **Body:** `src__application__services__role_plays__s2_context_crud__ContextCRUD__Create__Input`
+- **Responses:** `201` (ContextModelPydanticSchema), `422`
+
+### GET /role_plays/context_list
+
+- **Auth:** sim
+- **Query param obrigatório:** `offer_id: integer`
+- **Responses:** `200` (lista de `ContextModel__SchemaGetListItem`), `422`
+
+---
+
+## 3.1) Case Setup Values
+
+### GET /role_plays/call_contexts
+
+- **Auth:** sim
+- **Responses:** `200` (lista de `CaseSetupValuesCRUD__GetCallContext__Output`)
+
+---
+
+## 3.2) Case Setup
+
+### POST /role_plays/generate
+
+- **Auth:** sim
+- **Body:** `src__application__services__role_plays__s32_case_setup_crud__CaseSetupCRUD__Generate__Input`
+- **Responses:** `200` (output), `422`
+
+### POST /role_plays/case_setup/create
+
+- **Auth:** sim
+- **Query param opcional:** `generate_case_prompt: boolean = true`
+- **Body:** `src__application__services__role_plays__s32_case_setup_crud__CaseSetupCRUD__Create__Input`
+- **Responses:** `201` (CasesSetupModelPydanticSchema), `422`
+
+### GET /role_plays/case_setup/context_{context_id}/list
+
+- **Auth:** sim
+- **Path param:** `context_id: integer`
+- **Responses:** `200` (lista de `CasesSetupModel__SchemaGetListItem` ou `null`), `422`
+
+### GET /role_plays/case_setup_{case_setup_id}
+
+- **Auth:** sim
+- **Path param:** `case_setup_id: integer`
+- **Responses:** `200` (CasesSetupModelPydanticSchema), `422`
+
+### PUT /role_plays/case_setup_{case_setup_id}
+
+- **Auth:** sim
+- **Path param:** `case_setup_id: integer`
+- **Query param opcional:** `generate_case_prompt: boolean = true`
+- **Body:** `CasesSetupModelExcl_created_at_created_by_user_id_updated_at_updated_by_user_id_id_organization_id_context_id_case_promptAllOptPydanticSchema`
+- **Responses:** `202` (CasesSetupModelPydanticSchema), `422`
+
+### DELETE /role_plays/case_setup_{case_setup_id}
+
+- **Auth:** sim
+- **Path param:** `case_setup_id: integer`
+- **Responses:** `204`, `422`
+
+### PUT /role_plays/case_setup_{case_setup_id}/case_prompt
+
+- **Auth:** sim
+- **Path param:** `case_setup_id: integer`
+- **Body:** `CasesSetupModelIncl_c_a_s_e___p_r_o_m_p_tPydanticSchema`
+- **Responses:** `202` (CasesSetupModelPydanticSchema), `422`
+
+---
+
+## Notas de contrato
+
+- Os nomes de paths acima (com underscore) devem ser mantidos exatamente como estão no OpenAPI.
+- O schema de erro compartilhado é `HTTPValidationError` para respostas `422`.
