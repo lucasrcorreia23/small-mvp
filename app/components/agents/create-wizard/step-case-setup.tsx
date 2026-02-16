@@ -172,7 +172,7 @@ export function StepCaseSetup({ contextId, initialData, onComplete, onBack, setF
     salesperson_evaluation_rubric_criteria: initialData.salesperson_evaluation_rubric_criteria ?? [],
     company_profile: companyProfile!,
     persona_profile: personaProfile!,
-    persona_voice_slug: initialData.persona_voice_slug ?? '',
+    persona_voice_id: (initialData as { persona_voice_id?: number }).persona_voice_id ?? 1,
     persona_voice_model_id: initialData.persona_voice_model_id ?? null,
     successful_sale_dialogues_examples: successDialog,
     unsuccessful_sale_dialogues_examples: unsuccessDialog,

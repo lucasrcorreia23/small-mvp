@@ -42,10 +42,10 @@ const STA_API_BASE = '/api/new_sta';
 const MOCK_MODE = process.env.NEXT_PUBLIC_USE_MOCK_STA === 'true';
 
 // In-memory stores for created items during session
-let createdOffers: Offer[] = [];
-let createdContexts: Context[] = [];
-let createdCaseSetups: CaseSetup[] = [];
-let createdAgents: Agent[] = [];
+const createdOffers: Offer[] = [];
+const createdContexts: Context[] = [];
+const createdCaseSetups: CaseSetup[] = [];
+const createdAgents: Agent[] = [];
 let nextId = 100;
 
 function delay(ms: number): Promise<void> {
@@ -427,13 +427,13 @@ export async function getRoleplayDetail(id: number): Promise<RoleplayDetail> {
       persona_profile: {
         name: agent.persona_name,
         age: 40,
-        gender_slug: 'other',
+        gender_id: 3,
         job_title: agent.persona_job_title,
         department: '',
         career_path: '',
         years_in_current_position: 0,
         previous_professional_experience: '',
-        communication_style_slug: 'formal',
+        communication_style_id: 1,
         hobbies_and_interests: '',
         description: '',
         point_of_view: '',

@@ -105,13 +105,13 @@ function mockPersona(overrides: Partial<PersonaOutput>): PersonaOutput {
   return {
     name: 'Nome',
     age: 40,
-    gender_slug: 'other',
+    gender_id: 3,
     job_title: 'Cargo',
     department: 'Departamento',
     career_path: 'Trajetoria',
     years_in_current_position: 5,
     previous_professional_experience: 'Experiencia previa',
-    communication_style_slug: 'formal',
+    communication_style_id: 1,
     hobbies_and_interests: '',
     description: '',
     point_of_view: '',
@@ -177,7 +177,7 @@ export const MOCK_CASE_SETUPS: CaseSetup[] = [
       job_title: 'Gerente Comercial',
       age: 42,
       description: 'Direto, orientado a resultados, impaciente com enrolacao, valoriza dados concretos.',
-      communication_style_slug: 'direct',
+      communication_style_id: 2,
     }),
     company_profile: mockCompany({
       name: 'TechNova Solucoes',
@@ -240,7 +240,7 @@ export const MOCK_CASE_SETUPS: CaseSetup[] = [
       job_title: 'CEO',
       age: 55,
       description: 'Cautelosa, tradicional, protetora com a equipe, valoriza relacoes de longo prazo.',
-      communication_style_slug: 'reserved',
+      communication_style_id: 3,
     }),
     company_profile: mockCompany({
       name: 'Embalagens Uniao',
@@ -640,7 +640,7 @@ export function getMockCaseSetupGeneration(contextId: number, slug?: string, dif
       job_title: 'Diretor de Operacoes',
       age: 45,
       description: 'Analitico, metódico, valoriza dados e planejamento.',
-      communication_style_slug: 'formal',
+      communication_style_id: 1,
     }),
     company_profile: mockCompany({
       name: 'Grupo Inovare',

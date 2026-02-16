@@ -107,7 +107,7 @@ function CallPageContent() {
     const response = await fetch('/api/get-agent-link', {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ case_setup_id: agentId }),
+      body: JSON.stringify({ case_setup_id: agentId, user_time: new Date().toISOString() }),
     });
     if (!response.ok) {
       if (response.status === 401) {

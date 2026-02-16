@@ -2,6 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { CaseSetupGenerateResponse } from '@/app/lib/types/sta';
+import {
+  listCommunicationStyles,
+  formatCommunicationStyleById,
+  type SimpleDataObjectItem,
+} from '@/app/lib/data-objects-service';
 
 interface StepReviewProps {
   generatedData: CaseSetupGenerateResponse;
@@ -17,8 +22,12 @@ export function StepReview({ generatedData, onComplete, onBack, setFooterContent
   // Persona
   const [personaName, setPersonaName] = useState(generatedData.persona_profile.name);
   const [personaCompany, setPersonaCompany] = useState(generatedData.company_profile.name);
-  const [personaStyle, setPersonaStyle] = useState(generatedData.persona_profile.communication_style_slug);
   const [personaAvatar, setPersonaAvatar] = useState<string | null>(null);
+  const [communicationStyles, setCommunicationStyles] = useState<SimpleDataObjectItem[]>([]);
+  const personaStyle = formatCommunicationStyleById(
+    generatedData.persona_profile.communication_style_id,
+    communicationStyles
+  );
 
   // Criteria
   const [criteria, setCriteria] = useState<string[]>(generatedData.salesperson_success_criteria || []);
@@ -62,7 +71,6 @@ export function StepReview({ generatedData, onComplete, onBack, setFooterContent
       persona_profile: {
         ...generatedData.persona_profile,
         name: personaName,
-        communication_style_slug: personaStyle,
       },
       company_profile: {
         ...generatedData.company_profile,
@@ -73,6 +81,16 @@ export function StepReview({ generatedData, onComplete, onBack, setFooterContent
     };
     onComplete(updated);
   };
+
+  useEffect(() => {
+    let active = true;
+    listCommunicationStyles().then((styles) => {
+      if (active) setCommunicationStyles(styles);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!setFooterContent) return;
@@ -93,7 +111,7 @@ export function StepReview({ generatedData, onComplete, onBack, setFooterContent
       </>
     );
     return () => setFooterContent(null);
-  }, [setFooterContent, onBack, trainingName, trainingDescription, personaName, personaCompany, personaStyle, criteria, skills]);
+  }, [setFooterContent, onBack, trainingName, trainingDescription, personaName, personaCompany, criteria, skills]);
 
   return (
     <div className="w-full max-w-[700px] mx-auto space-y-6">
@@ -182,7 +200,7 @@ export function StepReview({ generatedData, onComplete, onBack, setFooterContent
               <input
                 type="text"
                 value={personaStyle}
-                onChange={(e) => setPersonaStyle(e.target.value)}
+                readOnly
                 className="w-full px-3 py-2 pr-40 rounded-sm border border-slate-200 bg-white text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 pointer-events-none">

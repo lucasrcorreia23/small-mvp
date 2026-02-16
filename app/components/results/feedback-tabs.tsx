@@ -1,23 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { CallResult, Agent, RoleplayDetail, RubricResult } from '@/app/lib/types/sta';
 import { RubricChecklist } from './rubric-checklist';
 import { AnalyticsDashboard } from './analytics-dashboard';
 import { ObjectionsDetail } from './objections-detail';
 import { SessionsList } from './sessions-list';
-
-function formatCommunicationStyle(slug: string): string {
-  const map: Record<string, string> = {
-    formal: 'Formal',
-    casual: 'Casual',
-    assertive: 'Assertivo',
-    consultative: 'Consultivo',
-    other: 'Outro',
-  };
-  return map[slug] || slug;
-}
+import {
+  formatCommunicationStyleById,
+  listCommunicationStyles,
+  type SimpleDataObjectItem,
+} from '@/app/lib/data-objects-service';
 
 function formatResultDate(createdAt: string): string {
   try {
@@ -56,9 +49,20 @@ export function FeedbackTabs({
   onTentarNovamente,
 }: FeedbackTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>('feedback');
+  const [communicationStyles, setCommunicationStyles] = useState<SimpleDataObjectItem[]>([]);
 
-  const communicationStyle = roleplayDetail?.persona_profile?.communication_style_slug
-    ? formatCommunicationStyle(roleplayDetail.persona_profile.communication_style_slug)
+  useEffect(() => {
+    let active = true;
+    listCommunicationStyles().then((styles) => {
+      if (active) setCommunicationStyles(styles);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const communicationStyle = roleplayDetail?.persona_profile?.communication_style_id
+    ? formatCommunicationStyleById(roleplayDetail.persona_profile.communication_style_id, communicationStyles)
     : '—';
   const rubricResults: RubricResult[] =
     callResult.rubric_results?.length

@@ -255,6 +255,23 @@ export function WizardContainer() {
     try {
       const contextId = state.context.id;
       if (!contextId) throw new Error('Context ID not found');
+      const finalDataExt = finalData as CaseSetupGenerateResponse & {
+        training_keywords?: string;
+        buyer_prior_knowledge?: string[];
+        buyer_agent_first_messages?: string[];
+        buyer_agent_success_criteria?: string[];
+        salesperson_instructions?: string[];
+        salesperson_desired_tone_and_mood?: string;
+        salesperson_desired_behaviors?: string[];
+        salesperson_undesired_behaviors?: string[];
+        salesperson_evaluation_rubric_criteria?: string[];
+        persona_voice_id?: number;
+        persona_voice_model_id?: string | null;
+      };
+      const personaVoiceId =
+        Number.isInteger(finalDataExt.persona_voice_id) && (finalDataExt.persona_voice_id as number) > 0
+          ? (finalDataExt.persona_voice_id as number)
+          : 1;
 
       const [, created] = await Promise.all([
         new Promise((resolve) => setTimeout(resolve, 10000)),
@@ -263,14 +280,25 @@ export function WizardContainer() {
           call_context_type_slug: finalData.call_context_type_slug,
           training_name: finalData.training_name,
           training_description: finalData.training_description,
+          training_keywords: finalDataExt.training_keywords ?? '',
           training_objective: finalData.training_objective,
           training_targeted_sales_skills: finalData.training_targeted_sales_skills,
           scenario_difficulty_level: finalData.scenario_difficulty_level,
           buyer_agent_instructions: finalData.buyer_agent_instructions,
+          buyer_prior_knowledge: finalDataExt.buyer_prior_knowledge ?? [],
           buyer_agent_initial_tone_and_mood: finalData.buyer_agent_initial_tone_and_mood,
+          buyer_agent_first_messages: finalDataExt.buyer_agent_first_messages ?? [],
+          buyer_agent_success_criteria: finalDataExt.buyer_agent_success_criteria ?? [],
+          salesperson_instructions: finalDataExt.salesperson_instructions ?? [],
+          salesperson_desired_tone_and_mood: finalDataExt.salesperson_desired_tone_and_mood ?? '',
+          salesperson_desired_behaviors: finalDataExt.salesperson_desired_behaviors ?? [],
+          salesperson_undesired_behaviors: finalDataExt.salesperson_undesired_behaviors ?? [],
           salesperson_success_criteria: finalData.salesperson_success_criteria,
+          salesperson_evaluation_rubric_criteria: finalDataExt.salesperson_evaluation_rubric_criteria ?? [],
           company_profile: finalData.company_profile,
           persona_profile: finalData.persona_profile,
+          persona_voice_id: personaVoiceId,
+          persona_voice_model_id: finalDataExt.persona_voice_model_id ?? null,
           successful_sale_dialogues_examples: finalData.successful_sale_dialogues_examples,
           unsuccessful_sale_dialogues_examples: finalData.unsuccessful_sale_dialogues_examples,
         }),

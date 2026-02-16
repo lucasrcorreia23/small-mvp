@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const callContextTypeId = await resolveCallContextTypeId(authHeader, body.call_context_type_slug);
-    const personaVoiceIdRaw = body.persona_voice_id ?? body.persona_voice_slug;
+    const personaVoiceIdRaw = body.persona_voice_id;
     const personaVoiceId = Number(personaVoiceIdRaw);
     const normalizedBody = {
       ...body,
@@ -60,7 +60,6 @@ export async function POST(request: NextRequest) {
       ...(Number.isInteger(personaVoiceId) && personaVoiceId > 0 && { persona_voice_id: personaVoiceId }),
     };
     delete (normalizedBody as Record<string, unknown>).call_context_type_slug;
-    delete (normalizedBody as Record<string, unknown>).persona_voice_slug;
 
     console.log('[STA] Creating case setup:', JSON.stringify(normalizedBody));
 
@@ -96,6 +95,17 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: msg }, { status: response.status });
         }
         console.error('[STA] Create case setup API error:', data);
+        if (response.status === 422 && Array.isArray(data?.detail)) {
+          const missingFields = data.detail
+            .map((d: unknown) => {
+              if (!d || typeof d !== 'object') return null;
+              const loc = (d as { loc?: unknown[] }).loc;
+              if (!Array.isArray(loc) || loc.length === 0) return null;
+              return String(loc[loc.length - 1]);
+            })
+            .filter(Boolean);
+          console.error('[STA] Missing/invalid fields (422):', missingFields);
+        }
         const errMsg = typeof data.detail === 'string' ? data.detail : data.message || data.error || 'Erro ao criar case setup';
         return NextResponse.json({ error: errMsg }, { status: response.status });
       }

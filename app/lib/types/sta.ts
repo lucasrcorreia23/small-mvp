@@ -132,13 +132,13 @@ export interface ContextCreateRequest {
 export interface PersonaOutput {
   name: string;
   age: number;
-  gender_slug: string;
+  gender_id: number;
   job_title: string;
   department: string;
   career_path: string;
   years_in_current_position: number;
   previous_professional_experience: string;
-  communication_style_slug: string;
+  communication_style_id: number;
   hobbies_and_interests: string;
   description: string;
   point_of_view: string;
@@ -239,27 +239,27 @@ export interface CaseSetupCreateRequest {
   call_context_type_slug: string;
   training_name: string;
   training_description: string;
-  training_keywords?: string;
+  training_keywords: string;
   training_objective: string;
   training_targeted_sales_skills: string[];
   scenario_difficulty_level: string;
   buyer_agent_instructions: AgentInstructionsOutput[];
-  buyer_prior_knowledge?: string[];
+  buyer_prior_knowledge: string[];
   buyer_agent_initial_tone_and_mood: string;
-  buyer_agent_first_messages?: string[];
-  buyer_agent_success_criteria?: string[];
-  salesperson_instructions?: string[];
-  salesperson_desired_tone_and_mood?: string;
-  salesperson_desired_behaviors?: string[];
-  salesperson_undesired_behaviors?: string[];
+  buyer_agent_first_messages: string[];
+  buyer_agent_success_criteria: string[];
+  salesperson_instructions: string[];
+  salesperson_desired_tone_and_mood: string;
+  salesperson_desired_behaviors: string[];
+  salesperson_undesired_behaviors: string[];
   salesperson_success_criteria: string[];
-  salesperson_evaluation_rubric_criteria?: string[];
+  salesperson_evaluation_rubric_criteria: string[];
   company_profile: EmployerCompanyOutput;
   persona_profile: PersonaOutput;
-  persona_voice_slug?: string;
-  persona_voice_model_id?: string | null;
-  successful_sale_dialogues_examples?: DialogOutput[];
-  unsuccessful_sale_dialogues_examples?: DialogOutput[];
+  persona_voice_id: number;
+  persona_voice_model_id: string | null;
+  successful_sale_dialogues_examples: DialogOutput[];
+  unsuccessful_sale_dialogues_examples: DialogOutput[];
 }
 
 export interface CallContextGroup {

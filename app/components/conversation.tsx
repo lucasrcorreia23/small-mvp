@@ -89,7 +89,7 @@ export function Conversation() {
         'Authorization': `Bearer ${token}`, // Token no header Authorization
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ case_setup_id: caseSetupId }),
+      body: JSON.stringify({ case_setup_id: caseSetupId, user_time: new Date().toISOString() }),
     });
 
     if (!response.ok) {
