@@ -15,7 +15,9 @@ import { getToken, logout as authLogout } from '@/app/lib/auth-service';
 import { MOCK_CONVERSATION_SCRIPT } from '@/app/lib/mock-data';
 import { getPersonaAvatarUrl } from '@/app/lib/persona-avatar';
 
-const MOCK_CALL = process.env.NEXT_PUBLIC_USE_MOCK_AGENT_LINK === 'true';
+const MOCK_CALL = false;
+const AUTO_START_DEDUP_WINDOW_MS = 4000;
+const autoStartByAgent = new Map<number, number>();
 
 function mapFrequencyDataToBands(
   data: Uint8Array,
@@ -58,6 +60,84 @@ function formatDifficulty(level: string): string {
   return level;
 }
 
+function summarizeUrl(value: string): string {
+  try {
+    const u = new URL(value);
+    return `${u.protocol}//${u.host}${u.pathname}`;
+  } catch {
+    return value.slice(0, 80);
+  }
+}
+
+function safeStringify(value: unknown): string {
+  const seen = new WeakSet<object>();
+  return JSON.stringify(
+    value,
+    (_key, currentValue: unknown) => {
+      if (currentValue instanceof Error) {
+        return {
+          name: currentValue.name,
+          message: currentValue.message,
+          stack: currentValue.stack,
+        };
+      }
+      if (typeof currentValue === 'object' && currentValue !== null) {
+        if (seen.has(currentValue)) return '[Circular]';
+        seen.add(currentValue);
+      }
+      return currentValue;
+    },
+    2,
+  );
+}
+
+function extractConversationError(err: unknown): {
+  message: string;
+  code?: string | number;
+  reason?: string;
+  closeCode?: number;
+  closeReason?: string;
+  raw: unknown;
+} {
+  if (err instanceof Error) {
+    const candidate = err as Error & {
+      code?: string | number;
+      reason?: string;
+      closeCode?: number;
+      closeReason?: string;
+      cause?: unknown;
+    };
+    return {
+      message: candidate.message,
+      code: candidate.code,
+      reason: candidate.reason,
+      closeCode: candidate.closeCode,
+      closeReason: candidate.closeReason,
+      raw: candidate.cause ?? candidate,
+    };
+  }
+
+  if (err && typeof err === 'object') {
+    const obj = err as {
+      message?: unknown;
+      code?: unknown;
+      reason?: unknown;
+      closeCode?: unknown;
+      closeReason?: unknown;
+    };
+    return {
+      message: typeof obj.message === 'string' ? obj.message : 'Falha ao iniciar chamada.',
+      code: typeof obj.code === 'string' || typeof obj.code === 'number' ? obj.code : undefined,
+      reason: typeof obj.reason === 'string' ? obj.reason : undefined,
+      closeCode: typeof obj.closeCode === 'number' ? obj.closeCode : undefined,
+      closeReason: typeof obj.closeReason === 'string' ? obj.closeReason : undefined,
+      raw: obj,
+    };
+  }
+
+  return { message: String(err ?? 'Falha ao iniciar chamada.'), raw: err };
+}
+
 interface TranscriptEntry {
   role: 'buyer' | 'seller';
   content: string;
@@ -74,7 +154,10 @@ function CallPageContent() {
   const [isLoadingAgent, setIsLoadingAgent] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
   const [outputBands, setOutputBands] = useState<number[]>([]);
+  const isStartingRef = useRef(false);
+  const isMountedRef = useRef(true);
 
   // Mock call state
   const [mockState, setMockState] = useState<'idle' | 'connecting' | 'playing' | 'waiting' | 'ended'>('idle');
@@ -91,9 +174,16 @@ function CallPageContent() {
 
   const conversation = useConversation({
     onConnect: () => setError(null),
-    onDisconnect: () => setHasStarted(false),
+    onDisconnect: () => {
+      isStartingRef.current = false;
+      setHasStarted(false);
+    },
+    onStatusChange: (status) => {
+      console.log('[call] status changed:', safeStringify(status));
+    },
     onError: (err) => {
-      console.error('Conversation error:', err);
+      const details = extractConversationError(err);
+      console.error('[call] conversation error callback:', safeStringify(details));
       setError('Ocorreu um erro na conexão. Tente novamente.');
     },
   });
@@ -119,20 +209,75 @@ function CallPageContent() {
     }
     const data = await response.json();
     const signedUrl = data.signed_url || data.link || data.agent_link || data;
+    const responseShape = {
+      type: typeof data,
+      isObject: typeof data === 'object' && data !== null,
+      keys: typeof data === 'object' && data !== null ? Object.keys(data as Record<string, unknown>) : [],
+      hasSignedUrl: Boolean(typeof data === 'object' && data !== null && (data as { signed_url?: unknown }).signed_url),
+      hasLink: Boolean(typeof data === 'object' && data !== null && (data as { link?: unknown }).link),
+      hasAgentLink: Boolean(typeof data === 'object' && data !== null && (data as { agent_link?: unknown }).agent_link),
+      hasRefToken: Boolean(typeof data === 'object' && data !== null && (data as { ref_token?: unknown }).ref_token),
+    };
+    console.log('[call] get-agent-link response shape:', safeStringify(responseShape));
     if (!signedUrl || typeof signedUrl !== 'string') {
       throw new Error('Resposta da API sem URL do agente.');
     }
+    const selectedUrlInfo = {
+      protocol: signedUrl.split(':')[0],
+      preview: summarizeUrl(signedUrl),
+    };
+    console.log('[call] selected signed URL info:', safeStringify(selectedUrlInfo));
     return signedUrl;
   }, [agentId]);
 
   const startRealCall = useCallback(async () => {
+    if (isStartingRef.current) return;
+    if (conversation.status === 'connecting' || conversation.status === 'connected') return;
+
+    isStartingRef.current = true;
+    setIsStarting(true);
     setError(null);
+    setHasStarted(true);
     try {
       const signedUrl = await getSignedUrl();
-      await conversation.startSession({ signedUrl, connectionType: 'websocket' });
-      setHasStarted(true);
+      console.log('[call] starting session with websocket URL:', summarizeUrl(signedUrl));
+      const conversationId = await conversation.startSession({ signedUrl, connectionType: 'websocket' });
+      const currentStatus = conversation.status;
+      console.log('[call] startSession resolved:', safeStringify({ conversationId, status: currentStatus }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Falha ao iniciar chamada.');
+      const details = extractConversationError(err);
+      const logPayload = {
+        message: details.message,
+        code: details.code,
+        reason: details.reason,
+        closeCode: details.closeCode,
+        closeReason: details.closeReason,
+        status: conversation.status,
+        isSpeaking: conversation.isSpeaking,
+        raw: details.raw,
+      };
+      console.error('[call] startSession failed:', safeStringify(logPayload));
+      const message = details.message || 'Falha ao iniciar chamada.';
+      const lowerMessage = message.toLowerCase();
+      if (
+        lowerMessage.includes('notallowederror') ||
+        lowerMessage.includes('permission denied') ||
+        lowerMessage.includes('permissao')
+      ) {
+        setError('Permissão do microfone negada. Permita o acesso ao microfone e tente novamente.');
+      } else if (lowerMessage.includes('notfounderror') || lowerMessage.includes('no audio input')) {
+        setError('Nenhum microfone foi encontrado. Conecte um dispositivo de áudio e tente novamente.');
+      } else {
+        setError(message);
+      }
+      if (isMountedRef.current) {
+        setHasStarted(false);
+      }
+    } finally {
+      if (isMountedRef.current) {
+        setIsStarting(false);
+      }
+      isStartingRef.current = false;
     }
   }, [getSignedUrl, conversation]);
 
@@ -306,17 +451,30 @@ function CallPageContent() {
   const autoStartedRef = useRef(false);
   useEffect(() => {
     if (!agent || !autoStart || autoStartedRef.current) return;
+
+    if (!MOCK_CALL && Number.isInteger(agentId) && agentId > 0) {
+      const now = Date.now();
+      const lastAutoStart = autoStartByAgent.get(agentId);
+      if (typeof lastAutoStart === 'number' && now - lastAutoStart < AUTO_START_DEDUP_WINDOW_MS) {
+        return;
+      }
+      autoStartByAgent.set(agentId, now);
+    }
+
     autoStartedRef.current = true;
     if (MOCK_CALL) {
       startMockCall();
     } else {
-      startRealCall();
+      void startRealCall();
     }
-  }, [agent, autoStart, MOCK_CALL, startMockCall, startRealCall]);
+  }, [agent, autoStart, MOCK_CALL, startMockCall, startRealCall, agentId]);
 
   // Cleanup on unmount
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
+      isMountedRef.current = false;
+      isStartingRef.current = false;
       if (mockTimerRef.current) clearTimeout(mockTimerRef.current);
     };
   }, []);
@@ -407,9 +565,10 @@ function CallPageContent() {
               <div className="space-y-4">
                 <button
                   onClick={MOCK_CALL ? startMockCall : startRealCall}
-                  className="btn-primary w-full h-12 px-6 text-white font-medium transition-all duration-200 active:scale-[0.98]"
+                  disabled={isStarting || conversation.status === 'connecting'}
+                  className="btn-primary w-full h-12 px-6 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium transition-all duration-200 active:scale-[0.98]"
                 >
-                  Iniciar Chamada
+                  {isStarting || conversation.status === 'connecting' ? 'Iniciando...' : 'Iniciar Chamada'}
                 </button>
                 <button
                   onClick={handleBack}
@@ -463,7 +622,7 @@ function CallPageContent() {
                   className="h-40 max-w-full"
                   centerAlign
                   frequencyBands={outputBands}
-                  demo={!outputBands.length}
+                  demo={false}
                 />
 
                 <button

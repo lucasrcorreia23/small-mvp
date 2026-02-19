@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { CaseSetupGenerateResponse } from '@/app/lib/types/sta';
-import { getCallContextLabel } from '@/app/lib/call-context-labels';
 import { getPersonaAvatarUrl } from '@/app/lib/persona-avatar';
+import { formatCommunicationStyleById, DEFAULT_COMMUNICATION_STYLES } from '@/app/lib/data-objects-service';
 
 function formatDifficulty(level: string): string {
   if (level === 'easy') return 'Fácil';
@@ -71,6 +71,10 @@ export function StepSuccess({ agentId, generatedData }: StepSuccessProps) {
   const persona = generatedData.persona_profile;
   const contextText = cleanDescription(generatedData.training_description);
   const difficultyStyles = getDifficultyStyles(generatedData.scenario_difficulty_level);
+  const communicationStyleLabel = formatCommunicationStyleById(
+    generatedData.persona_profile.communication_style_id,
+    DEFAULT_COMMUNICATION_STYLES
+  );
 
   return (
     <div className="relative min-h-[60vh] flex flex-col items-center justify-center overflow-hidden">
@@ -130,11 +134,9 @@ export function StepSuccess({ agentId, generatedData }: StepSuccessProps) {
                   <span className={`text-xs font-medium px-2 py-0.5 rounded shrink-0 ${difficultyStyles.bg} ${difficultyStyles.text}`}>
                     {formatDifficulty(generatedData.scenario_difficulty_level)}
                   </span>
-                  {generatedData.call_context_type_slug && (
-                    <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded truncate min-w-0">
-                      {getCallContextLabel(generatedData.call_context_type_slug)}
-                    </span>
-                  )}
+                  <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded truncate min-w-0">
+                    {communicationStyleLabel}
+                  </span>
                 </div>
               </div>
             </div>

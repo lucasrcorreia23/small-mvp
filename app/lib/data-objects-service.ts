@@ -3,20 +3,13 @@ export interface SimpleDataObjectItem {
   name: string;
 }
 
-const FALLBACK_COMMUNICATION_STYLES: SimpleDataObjectItem[] = [
-  { id: 1, name: 'Formal' },
-  { id: 2, name: 'Direto' },
-  { id: 3, name: 'Reservado' },
-  { id: 4, name: 'Casual' },
-  { id: 5, name: 'Assertivo' },
-  { id: 6, name: 'Consultivo' },
-];
+export const DEFAULT_COMMUNICATION_STYLES: SimpleDataObjectItem[] = [];
 
 export async function listCommunicationStyles(): Promise<SimpleDataObjectItem[]> {
   try {
     const response = await fetch('/api/data-objects/communication-styles', { method: 'GET' });
     const data = await response.json().catch(() => []);
-    if (!response.ok || !Array.isArray(data)) return FALLBACK_COMMUNICATION_STYLES;
+    if (!response.ok || !Array.isArray(data)) return [];
     const normalized = data
       .map((item: unknown) => {
         if (!item || typeof item !== 'object') return null;
@@ -26,9 +19,9 @@ export async function listCommunicationStyles(): Promise<SimpleDataObjectItem[]>
         return { id, name } as SimpleDataObjectItem;
       })
       .filter(Boolean) as SimpleDataObjectItem[];
-    return normalized.length ? normalized : FALLBACK_COMMUNICATION_STYLES;
+    return normalized;
   } catch {
-    return FALLBACK_COMMUNICATION_STYLES;
+    return [];
   }
 }
 
@@ -38,5 +31,5 @@ export function formatCommunicationStyleById(
 ): string {
   if (!styleId || !Number.isInteger(styleId)) return 'Nao informado';
   const found = styles.find((s) => s.id === styleId);
-  return found?.name || `Estilo ${styleId}`;
+  return found?.name || 'Nao informado';
 }

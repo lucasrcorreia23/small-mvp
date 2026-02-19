@@ -5,6 +5,7 @@ import { CaseSetupGenerateResponse } from '@/app/lib/types/sta';
 import {
   listCommunicationStyles,
   formatCommunicationStyleById,
+  DEFAULT_COMMUNICATION_STYLES,
   type SimpleDataObjectItem,
 } from '@/app/lib/data-objects-service';
 
@@ -23,7 +24,7 @@ export function StepReview({ generatedData, onComplete, onBack, setFooterContent
   const [personaName, setPersonaName] = useState(generatedData.persona_profile.name);
   const [personaCompany, setPersonaCompany] = useState(generatedData.company_profile.name);
   const [personaAvatar, setPersonaAvatar] = useState<string | null>(null);
-  const [communicationStyles, setCommunicationStyles] = useState<SimpleDataObjectItem[]>([]);
+  const [communicationStyles, setCommunicationStyles] = useState<SimpleDataObjectItem[]>(DEFAULT_COMMUNICATION_STYLES);
   const personaStyle = formatCommunicationStyleById(
     generatedData.persona_profile.communication_style_id,
     communicationStyles

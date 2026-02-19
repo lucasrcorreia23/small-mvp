@@ -1,9 +1,9 @@
 /**
  * Servico de autenticacao
- * MOCK: NEXT_PUBLIC_USE_MOCK_AUTH=true usa mock; caso contrario usa API (NEXT_PUBLIC_API_BASE_URL)
+ * Integracao real obrigatoria (mock desativado em codigo).
  */
 
-const MOCK_MODE = process.env.NEXT_PUBLIC_USE_MOCK_AUTH === 'true';
+const MOCK_MODE = false;
 
 /** Chave do localStorage para o token JWT (fluxo: localStorage.setItem('token', data.token)) */
 const TOKEN_KEY = 'token';

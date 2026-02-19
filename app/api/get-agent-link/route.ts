@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const MOCK_AGENT_LINK = process.env.NEXT_PUBLIC_USE_MOCK_AGENT_LINK === 'true';
-const MOCK_SIGNED_URL = 'wss://mock-agent-link.local/conversation';
+const MOCK_AGENT_LINK = false;
 
 /**
  * POST /api/get-agent-link
@@ -10,9 +9,7 @@ const MOCK_SIGNED_URL = 'wss://mock-agent-link.local/conversation';
  */
 export async function POST(request: NextRequest) {
   try {
-    if (MOCK_AGENT_LINK) {
-      return NextResponse.json({ signed_url: MOCK_SIGNED_URL });
-    }
+    if (MOCK_AGENT_LINK) return NextResponse.json({ error: 'Mock desativado' }, { status: 500 });
 
     // Obter token do header Authorization
     const authHeader = request.headers.get('authorization');
@@ -59,9 +56,7 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    if (MOCK_AGENT_LINK) {
-      return NextResponse.json({ signed_url: MOCK_SIGNED_URL });
-    }
+    if (MOCK_AGENT_LINK) return NextResponse.json({ error: 'Mock desativado' }, { status: 500 });
 
     // Obter token do header Authorization
     const authHeader = request.headers.get('authorization');
@@ -276,6 +271,42 @@ async function processRequest(token: string, caseSetupId: number, userTime: stri
       { error: detailMessage || 'Erro ao obter link do agente', details: data },
       { status: response.status }
     );
+  }
+
+  const responseSummary =
+    typeof data === 'object' && data !== null
+      ? {
+          keys: Object.keys(data as Record<string, unknown>),
+          hasSignedUrl: Boolean((data as { signed_url?: unknown }).signed_url),
+          hasLink: Boolean((data as { link?: unknown }).link),
+          hasAgentLink: Boolean((data as { agent_link?: unknown }).agent_link),
+          hasRefToken: Boolean((data as { ref_token?: unknown }).ref_token),
+        }
+      : { type: typeof data };
+  console.log('[get-agent-link] upstream success response summary:', responseSummary);
+
+  const signedUrlCandidate =
+    typeof data === 'object' && data !== null
+      ? ((data as { signed_url?: unknown; link?: unknown; agent_link?: unknown }).signed_url ??
+        (data as { signed_url?: unknown; link?: unknown; agent_link?: unknown }).link ??
+        (data as { signed_url?: unknown; link?: unknown; agent_link?: unknown }).agent_link)
+      : null;
+
+  if (typeof signedUrlCandidate === 'string') {
+    try {
+      const parsed = new URL(signedUrlCandidate);
+      const paramNames = Array.from(parsed.searchParams.keys());
+      console.log('[get-agent-link] signed URL diagnostics:', {
+        protocol: parsed.protocol,
+        host: parsed.host,
+        pathname: parsed.pathname,
+        hasQueryString: paramNames.length > 0,
+        queryParamCount: paramNames.length,
+        queryParamNames: paramNames,
+      });
+    } catch {
+      console.warn('[get-agent-link] signed URL diagnostics: invalid URL format');
+    }
   }
 
   return NextResponse.json(data);

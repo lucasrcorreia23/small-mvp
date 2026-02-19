@@ -4,9 +4,13 @@ import { useState, useEffect } from 'react';
 import { Agent } from '@/app/lib/types/sta';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { getAgentDisplayMeta, AgentDisplayMeta } from '@/app/lib/agent-display-meta';
-import { getCallContextLabel } from '@/app/lib/call-context-labels';
 import { getPersonaAvatarUrl } from '@/app/lib/persona-avatar';
+import {
+  DEFAULT_COMMUNICATION_STYLES,
+  formatCommunicationStyleById,
+  listCommunicationStyles,
+  type SimpleDataObjectItem,
+} from '@/app/lib/data-objects-service';
 import { CardActionsMenu } from './card-actions-menu';
 
 interface AgentCardProps {
@@ -39,26 +43,28 @@ function getDifficultyStyles(level: string): { bg: string; text: string } {
   return { bg: 'bg-slate-100', text: 'text-slate-600' };
 }
 
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '?';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
 export function AgentCard({ agent, onEdit, onDelete }: AgentCardProps) {
   const router = useRouter();
-  const [meta, setMeta] = useState<AgentDisplayMeta | null>(null);
+  const [communicationStyles, setCommunicationStyles] = useState<SimpleDataObjectItem[]>(DEFAULT_COMMUNICATION_STYLES);
   const contextText = cleanDescription(agent.training_description);
   const difficultyStyles = getDifficultyStyles(agent.scenario_difficulty_level);
+  const communicationStyleLabel = formatCommunicationStyleById(
+    agent.communication_style_id,
+    communicationStyles
+  );
 
   useEffect(() => {
-    setMeta(getAgentDisplayMeta(agent.id));
-  }, [agent.id]);
+    let active = true;
+    listCommunicationStyles().then((styles) => {
+      if (active) setCommunicationStyles(styles);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
-  const displayName = meta?.displayName?.trim() || agent.persona_name;
-  const showAvatarUpload = meta?.avatarType === 'upload' && meta?.avatarData;
-  const showAvatarInitials = meta?.avatarType === 'initials' || (meta && !showAvatarUpload);
+  // Sempre prioriza o nome real da persona para manter consistência com o cargo.
+  const displayName = agent.persona_name?.trim() || 'Persona';
 
   const handleClick = () => {
     router.push(`/agents/${agent.id}/details`);
@@ -81,26 +87,14 @@ export function AgentCard({ agent, onEdit, onDelete }: AgentCardProps) {
         {/* Foto + nome (título) + cargo */}
         <div className="flex items-start gap-3 pr-12">
           <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 bg-slate-200">
-            {showAvatarUpload ? (
-              <img
-                src={meta!.avatarData}
-                alt={displayName}
-                className="w-full h-full object-cover"
-              />
-            ) : showAvatarInitials ? (
-              <div className="w-full h-full flex items-center justify-center bg-[#2E63CD] text-white font-semibold text-base">
-                {getInitials(displayName)}
-              </div>
-            ) : (
-              <Image
-                src={getPersonaAvatarUrl(agent.id, agent.persona_name)}
-                alt={displayName}
-                width={64}
-                height={64}
-                className="w-full h-full object-cover"
-                unoptimized
-              />
-            )}
+            <Image
+              src={getPersonaAvatarUrl(agent.id, displayName)}
+              alt={displayName}
+              width={64}
+              height={64}
+              className="w-full h-full object-cover"
+              unoptimized
+            />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-base font-semibold text-slate-800 truncate">
@@ -112,11 +106,9 @@ export function AgentCard({ agent, onEdit, onDelete }: AgentCardProps) {
               <span className={`text-xs font-medium px-2 py-0.5 rounded shrink-0 ${difficultyStyles.bg} ${difficultyStyles.text}`}>
                 {formatDifficulty(agent.scenario_difficulty_level)}
               </span>
-              {agent.call_context_type_slug && (
-                <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded truncate min-w-0">
-                  {getCallContextLabel(agent.call_context_type_slug)}
-                </span>
-              )}
+              <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded truncate min-w-0">
+                {communicationStyleLabel}
+              </span>
             </div>
           </div>
         </div>

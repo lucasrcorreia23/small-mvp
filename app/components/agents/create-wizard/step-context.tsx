@@ -32,7 +32,6 @@ export function StepContext({ offerId, initialData, onComplete, onBack, setFoote
   const [existingSolutions, setExistingSolutions] = useState(initialData.persona_existing_solutions || '');
 
   const [additionalInstructions, setAdditionalInstructions] = useState('');
-  const [infer, setInfer] = useState(false);
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -52,7 +51,7 @@ export function StepContext({ offerId, initialData, onComplete, onBack, setFoote
       const generated: ContextGenerateResponse = await generateContext({
         offer_id: validOfferId,
         aditional_instructions: additionalInstructions.trim() || '',
-        infer,
+        infer: false,
       });
 
       setName(generated.name || '');
@@ -168,7 +167,7 @@ export function StepContext({ offerId, initialData, onComplete, onBack, setFoote
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-0">
-        {/* Left Column: textarea + infer toggle + generate */}
+        {/* Left Column: textarea + generate */}
         <div className="w-full lg:w-[40%] lg:flex-shrink-0 lg:pr-8 space-y-6">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-slate-700">Descrição para a IA</label>
@@ -179,24 +178,6 @@ export function StepContext({ offerId, initialData, onComplete, onBack, setFoote
               rows={8}
               className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
             />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="context-infer"
-                checked={infer}
-                onChange={(e) => setInfer(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 focus:ring-2 focus:ring-[#2E63CD]/30 focus:ring-offset-0 accent-[#2E63CD]"
-              />
-              <label htmlFor="context-infer" className="text-sm font-medium text-slate-700">
-                Preenchimento criativo
-              </label>
-            </div>
-            <p className="text-xs text-slate-500">
-              Quando ativado, a IA pode sugerir conteúdo mais criativo e variado para preencher os campos.
-            </p>
           </div>
 
           <button

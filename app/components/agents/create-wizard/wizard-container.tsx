@@ -305,7 +305,7 @@ export function WizardContainer() {
       ]);
 
       setAgentDisplayMeta(created.id, {
-        displayName: finalData.training_name || finalData.persona_profile.name || 'Roleplay',
+        displayName: finalData.persona_profile.name || finalData.training_name || 'Roleplay',
         avatarType: 'initials',
       });
 

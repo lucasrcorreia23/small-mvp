@@ -61,7 +61,6 @@ export function StepCaseSetup({ contextId, initialData, onComplete, onBack, setF
       : ''
   );
   const [additionalInstructions, setAdditionalInstructions] = useState('');
-  const [infer, setInfer] = useState(false);
 
   // Generated data (read-only after generation)
   const [personaProfile, setPersonaProfile] = useState<PersonaOutput | null>(initialData.persona_profile || null);
@@ -120,7 +119,7 @@ export function StepCaseSetup({ contextId, initialData, onComplete, onBack, setF
         training_objective: trainingObjective.trim() || undefined,
         training_targeted_sales_skills: targetedSkillsInput.trim() || undefined,
         aditional_instructions: additionalInstructions.trim() || undefined,
-        infer,
+        infer: false,
       }), CASE_SETUP_GENERATE_TIMEOUT_MS);
 
       setTrainingName(generated.training_name || '');
@@ -191,7 +190,7 @@ export function StepCaseSetup({ contextId, initialData, onComplete, onBack, setF
       const requestData = buildRequestData();
       const created = await createCaseSetup(requestData);
 
-      const displayName = trainingName.trim() || personaProfile?.name || 'Agente';
+      const displayName = personaProfile?.name?.trim() || trainingName.trim() || 'Agente';
       setAgentDisplayMeta(created.id, {
         displayName: displayName || undefined,
         avatarType: 'initials',
@@ -254,7 +253,7 @@ export function StepCaseSetup({ contextId, initialData, onComplete, onBack, setF
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-0">
-        {/* Left Column: label + text + textarea + infer toggle + generate (same pattern as Oferta) */}
+        {/* Left Column: label + text + textarea + generate */}
         <div className="w-full lg:w-[40%] lg:flex-shrink-0 lg:pr-8 space-y-6">
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-slate-700">Descrição para a IA</label>
@@ -265,24 +264,6 @@ export function StepCaseSetup({ contextId, initialData, onComplete, onBack, setF
               rows={8}
               className="w-full px-4 py-3 rounded-sm border border-slate-200 bg-white/70 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E63CD]/30 resize-none"
             />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="case-setup-infer"
-                checked={infer}
-                onChange={(e) => setInfer(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 focus:ring-2 focus:ring-[#2E63CD]/30 focus:ring-offset-0 accent-[#2E63CD]"
-              />
-              <label htmlFor="case-setup-infer" className="text-sm font-medium text-slate-700">
-                Preenchimento criativo
-              </label>
-            </div>
-            <p className="text-xs text-slate-500">
-              Quando ativado, a IA pode sugerir conteúdo mais criativo e variado para preencher os campos.
-            </p>
           </div>
 
           <button

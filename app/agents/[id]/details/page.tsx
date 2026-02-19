@@ -84,6 +84,9 @@ function DetailsPageContent() {
     );
   }
 
+  const personaName = roleplay.persona_profile?.name?.trim() || roleplay.persona_name?.trim() || 'Persona';
+  const personaJobTitle = roleplay.persona_profile?.job_title?.trim() || roleplay.persona_job_title?.trim() || '';
+
   return (
     <main className="min-h-screen relative">
       <AppHeader />
@@ -109,7 +112,7 @@ function DetailsPageContent() {
                 <div className="absolute inset-0">
                   <div className="absolute -right-12 -top-12 w-72 h-72 rounded-full opacity-[0.08] overflow-hidden">
                     <Image
-                      src={getPersonaAvatarUrl(roleplay.id, roleplay.persona_profile.name)}
+                      src={getPersonaAvatarUrl(roleplay.id, personaName)}
                       alt=""
                       fill
                       className="object-cover scale-150"
@@ -126,8 +129,8 @@ function DetailsPageContent() {
                     <div className="flex justify-center">
                       <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 bg-[#2E63CD] ring-4 ring-white/80 shadow-lg">
                         <Image
-                          src={getPersonaAvatarUrl(roleplay.id, roleplay.persona_profile.name)}
-                          alt={roleplay.persona_profile.name}
+                          src={getPersonaAvatarUrl(roleplay.id, personaName)}
+                          alt={personaName}
                           width={96}
                           height={96}
                           className="w-full h-full object-cover"
@@ -136,8 +139,8 @@ function DetailsPageContent() {
                       </div>
                     </div>
                     <div>
-                      <h1 className="text-xl font-semibold text-slate-800">{roleplay.persona_profile.name}</h1>
-                      <p className="text-slate-500 text-sm mt-0.5">{roleplay.persona_profile.job_title}</p>
+                      <h1 className="text-xl font-semibold text-slate-800">{personaName}</h1>
+                      <p className="text-slate-500 text-sm mt-0.5">{personaJobTitle}</p>
                       <p className="text-slate-600 text-sm mt-2">{roleplay.company_profile.name}</p>
                       {(roleplay.persona_profile.description || roleplay.company_profile.description) && (
                         <p className="text-slate-600 text-sm mt-3 leading-relaxed">

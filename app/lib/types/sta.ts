@@ -287,6 +287,7 @@ export interface Agent {
   company_name: string;
   call_context_type_slug: string;
   scenario_difficulty_level: string;
+  communication_style_id?: number | null;
   elevenlabs_agent_id?: string;
   created_at?: string;
 }

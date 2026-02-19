@@ -9,6 +9,7 @@ import { SessionsList } from './sessions-list';
 import {
   formatCommunicationStyleById,
   listCommunicationStyles,
+  DEFAULT_COMMUNICATION_STYLES,
   type SimpleDataObjectItem,
 } from '@/app/lib/data-objects-service';
 
@@ -49,7 +50,7 @@ export function FeedbackTabs({
   onTentarNovamente,
 }: FeedbackTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>('feedback');
-  const [communicationStyles, setCommunicationStyles] = useState<SimpleDataObjectItem[]>([]);
+  const [communicationStyles, setCommunicationStyles] = useState<SimpleDataObjectItem[]>(DEFAULT_COMMUNICATION_STYLES);
 
   useEffect(() => {
     let active = true;

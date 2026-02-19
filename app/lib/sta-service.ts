@@ -1,7 +1,7 @@
 /**
  * Servico para Sales Training Agents (STA)
- * MOCK: NEXT_PUBLIC_USE_MOCK_STA=true usa mock; caso contrario usa API real via proxy Next.
- * getCallResult permanece sempre mock (sem API de resultado ainda).
+ * Integracao real obrigatoria (mock desativado em codigo).
+ * getCallResult permanece mock ate endpoint oficial de resultado.
  */
 
 import {
@@ -39,7 +39,7 @@ import {
 /** Base para chamadas STA em modo real: API routes Next.js (evita CORS). */
 const STA_API_BASE = '/api/new_sta';
 
-const MOCK_MODE = process.env.NEXT_PUBLIC_USE_MOCK_STA === 'true';
+const MOCK_MODE = false;
 
 // In-memory stores for created items during session
 const createdOffers: Offer[] = [];
@@ -278,6 +278,7 @@ export async function createCaseSetup(data: CaseSetupCreateRequest): Promise<Cas
       company_name: data.company_profile.name,
       call_context_type_slug: data.call_context_type_slug,
       scenario_difficulty_level: data.scenario_difficulty_level,
+      communication_style_id: data.persona_profile.communication_style_id,
       elevenlabs_agent_id: `mock_agent_${id}`,
       created_at: new Date().toISOString(),
     };
@@ -340,6 +341,7 @@ export async function listAgents(): Promise<Agent[]> {
                 company_name: fullCaseSetup.company_profile?.name || '',
                 call_context_type_slug: fullCaseSetup.call_context_type_slug || '',
                 scenario_difficulty_level: fullCaseSetup.scenario_difficulty_level || '',
+                communication_style_id: fullCaseSetup.persona_profile?.communication_style_id,
                 elevenlabs_agent_id: fullCaseSetup.elevenlabs_agent_id,
                 created_at: fullCaseSetup.created_at,
               });
@@ -389,6 +391,7 @@ export async function getAgent(id: number): Promise<Agent> {
         company_name: caseSetup.company_profile.name,
         call_context_type_slug: caseSetup.call_context_type_slug,
         scenario_difficulty_level: caseSetup.scenario_difficulty_level,
+        communication_style_id: caseSetup.persona_profile.communication_style_id,
         elevenlabs_agent_id: caseSetup.elevenlabs_agent_id,
         created_at: caseSetup.created_at,
       };

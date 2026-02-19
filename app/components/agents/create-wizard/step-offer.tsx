@@ -32,7 +32,7 @@ export function StepOffer({ initialData, onComplete, onCancel, setFooterContent 
   const [customerSupport, setCustomerSupport] = useState(initialData.customer_support_model || '');
   const [pricingDetails, setPricingDetails] = useState(initialData.pricing_details_summary || '');
 
-  const [infer, setInfer] = useState(false);
+  const [infer, setInfer] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [hasGenerated, setHasGenerated] = useState(false);
